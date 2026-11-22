@@ -48,6 +48,7 @@ import {
   PROTOTYPE_UNIVERSITIES,
   PROTOTYPE_DEPARTMENTS,
   type Course,
+  type CourseSummary,
   type Department,
   type University,
   type CourseCardData,
@@ -63,17 +64,19 @@ export function CourseDirectoryClient({
 }: {
   universities?: University[]
   departments: Department[]
-  courses: Course[]
+  courses: (CourseSummary | Course)[]
 }) {
-  // View Switcher: default to prototype card grid mode
-  const [viewMode, setViewMode] = React.useState<"grid" | "legacy">("grid")
+  // View Switcher: default to live card grid mode
+  const [viewMode, setViewMode] = React.useState<"grid" | "prototype" | "legacy">(
+    "grid"
+  )
 
   // Legacy state
   const [selectedLegacyCourseId, setSelectedLegacyCourseId] = React.useState<
     string | null
   >(null)
 
-  // Prototype Grid filters state
+  // Grid filters state
   const [selectedUniversityId, setSelectedUniversityId] =
     React.useState<string>(ALL_OPTION)
   const [selectedDepartmentId, setSelectedDepartmentId] =
@@ -88,6 +91,32 @@ export function CourseDirectoryClient({
     "materials"
   )
   const [actionNotice, setActionNotice] = React.useState<string | null>(null)
+
+  // Normalize live courses
+  const liveNormalizedCourses: CourseCardData[] = React.useMemo(() => {
+    return courses.map((c) => {
+      const card = c as Partial<CourseCardData>
+      const uName =
+        card.universityName ||
+        universities.find((u) => u.id === c.universityId)?.name ||
+        ""
+      const dName =
+        card.departmentName ||
+        departments.find((d) => d.id === c.departmentId)?.name ||
+        ""
+      return {
+        id: c.id,
+        name: c.name,
+        code: c.code,
+        universityId: c.universityId,
+        universityName: uName,
+        departmentId: c.departmentId,
+        departmentName: dName,
+        materialsCount: Number(card.materialsCount ?? 0),
+        questionsCount: Number(card.questionsCount ?? 0),
+      }
+    })
+  }, [courses, universities, departments])
 
   // Dataset resolution: merge prototype data with any passed records
   const allUniversities = React.useMemo(() => {
@@ -108,6 +137,14 @@ export function CourseDirectoryClient({
     return getAvailableDepartments(allDepartments, selectedUniversityId)
   }, [allDepartments, selectedUniversityId])
 
+  // Active dataset for grid / prototype
+  const currentDataset = React.useMemo(() => {
+    if (viewMode === "prototype") return PROTOTYPE_COURSES
+    return liveNormalizedCourses.length > 0
+      ? liveNormalizedCourses
+      : PROTOTYPE_COURSES
+  }, [viewMode, liveNormalizedCourses])
+
   // Handle university change with cascading auto-reset
   const handleUniversityChange = (newUnivId: string) => {
     setSelectedUniversityId(newUnivId)
@@ -125,13 +162,13 @@ export function CourseDirectoryClient({
 
   // Filtered & sorted courses
   const filteredCourses = React.useMemo(() => {
-    return filterPrototypeCourses(PROTOTYPE_COURSES, {
+    return filterPrototypeCourses(currentDataset, {
       universityId: selectedUniversityId,
       departmentId: selectedDepartmentId,
       searchQuery,
       sortBy,
     })
-  }, [selectedUniversityId, selectedDepartmentId, searchQuery, sortBy])
+  }, [currentDataset, selectedUniversityId, selectedDepartmentId, searchQuery, sortBy])
 
   const hasActiveFilters =
     selectedUniversityId !== ALL_OPTION ||
@@ -168,16 +205,28 @@ export function CourseDirectoryClient({
                 Catalog Display Mode
               </h2>
               <Badge
-                variant={viewMode === "grid" ? "default" : "secondary"}
+                variant={
+                  viewMode === "grid"
+                    ? "default"
+                    : viewMode === "prototype"
+                      ? "outline"
+                      : "secondary"
+                }
                 className="text-[10px] tracking-wide uppercase"
               >
-                {viewMode === "grid" ? "Prototype Grid" : "Legacy Directory"}
+                {viewMode === "grid"
+                  ? "Card Grid"
+                  : viewMode === "prototype"
+                    ? "Prototype Preview"
+                    : "Legacy Directory"}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
               {viewMode === "grid"
-                ? "Interactive 3-column card grid with live filters, metrics, and course previews."
-                : "Grouped academic department lists with standard course picker."}
+                ? "Interactive 3-column card grid with live filters, metrics, and course links."
+                : viewMode === "prototype"
+                  ? "Prototype evaluation mode with simulated course data and interactive modal previews."
+                  : "Grouped academic department lists with standard course picker."}
             </p>
           </div>
         </div>
@@ -199,6 +248,20 @@ export function CourseDirectoryClient({
           </button>
           <button
             type="button"
+            onClick={() => setViewMode("prototype")}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
+              viewMode === "prototype"
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            data-testid="view-switcher-prototype"
+          >
+            <Sparkles className="size-3.5" />
+            <span>Prototype Preview</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setViewMode("legacy")}
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
@@ -214,8 +277,8 @@ export function CourseDirectoryClient({
         </div>
       </section>
 
-      {/* VIEW MODE: PROTOTYPE CARD GRID */}
-      {viewMode === "grid" ? (
+      {/* VIEW MODE: CARD GRID OR PROTOTYPE */}
+      {viewMode === "grid" || viewMode === "prototype" ? (
         <div className="flex flex-col gap-6">
           {/* Filters & Search Toolbar */}
           <section
@@ -383,17 +446,8 @@ export function CourseDirectoryClient({
                   course.questionsCount
                 )
 
-                return (
-                  <div
-                    key={course.id}
-                    data-testid={`course-card-${course.code}`}
-                    onClick={() => {
-                      setPreviewCourse(course)
-                      setActiveTab("materials")
-                      setActionNotice(null)
-                    }}
-                    className="group relative flex cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
-                  >
+                const cardInner = (
+                  <>
                     <div>
                       {/* University & Department Badges */}
                       <div className="flex flex-wrap items-center gap-1.5 pb-3">
@@ -460,6 +514,34 @@ export function CourseDirectoryClient({
                         </span>
                       </div>
                     </div>
+                  </>
+                )
+
+                if (viewMode === "grid") {
+                  return (
+                    <Link
+                      key={course.id}
+                      href={`/courses/${course.id}`}
+                      data-testid={`course-card-${course.code}`}
+                      className="group relative flex cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+                    >
+                      {cardInner}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <div
+                    key={course.id}
+                    data-testid={`course-card-${course.code}`}
+                    onClick={() => {
+                      setPreviewCourse(course)
+                      setActiveTab("materials")
+                      setActionNotice(null)
+                    }}
+                    className="group relative flex cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+                  >
+                    {cardInner}
                   </div>
                 )
               })}

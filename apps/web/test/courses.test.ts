@@ -1,6 +1,7 @@
 import test from "node:test"
 import assert from "node:assert/strict"
 import {
+  filterCourses,
   filterPrototypeCourses,
   getAvailableDepartments,
   isDepartmentCompatibleWithUniversity,
@@ -10,6 +11,7 @@ import {
   PROTOTYPE_UNIVERSITIES,
   PROTOTYPE_DEPARTMENTS,
   type CourseCardData,
+  type CourseSummary,
   type Department,
 } from "../app/courses/presentation.js"
 
@@ -252,4 +254,70 @@ test("PROTOTYPE_COURSES dataset covers realistic data and all required edge case
     (c) => (c.materials?.length ?? 0) > 0 && (c.questions?.length ?? 0) > 0
   )
   assert.ok(withDetails.length > 0, "Mock data has courses with detailed materials and questions for preview tabs")
+})
+
+test("filterCourses processes live CourseSummary catalog with cascading filters, sort, and search", () => {
+  const liveCourses: CourseSummary[] = [
+    {
+      id: "live-1",
+      name: "Compilers",
+      code: "CS401",
+      universityId: "uni-1",
+      universityName: "University One",
+      departmentId: "dept-cs",
+      departmentName: "Computer Science",
+      materialsCount: 5,
+      questionsCount: 12,
+    },
+    {
+      id: "live-2",
+      name: "Operating Systems",
+      code: "CS301",
+      universityId: "uni-1",
+      universityName: "University One",
+      departmentId: "dept-cs",
+      departmentName: "Computer Science",
+      materialsCount: 20,
+      questionsCount: 4,
+    },
+    {
+      id: "live-3",
+      name: "Linear Algebra",
+      code: "MATH201",
+      universityId: "uni-2",
+      universityName: "University Two",
+      departmentId: "dept-math",
+      departmentName: "Mathematics",
+      materialsCount: 1,
+      questionsCount: 0,
+    },
+  ]
+
+  // Filter by university
+  const filteredUni = filterCourses(liveCourses, { universityId: "uni-1" })
+  assert.equal(filteredUni.length, 2)
+  assert.deepEqual(filteredUni.map((c) => c.code).sort(), ["CS301", "CS401"])
+
+  // Filter by department
+  const filteredDept = filterCourses(liveCourses, { departmentId: "dept-math" })
+  assert.equal(filteredDept.length, 1)
+  assert.equal(filteredDept[0]?.code, "MATH201")
+
+  // Live text search by code and name
+  const searchedCode = filterCourses(liveCourses, { searchQuery: "cs3" })
+  assert.equal(searchedCode.length, 1)
+  assert.equal(searchedCode[0]?.code, "CS301")
+
+  const searchedName = filterCourses(liveCourses, { searchQuery: "linear" })
+  assert.equal(searchedName.length, 1)
+  assert.equal(searchedName[0]?.code, "MATH201")
+
+  // Sorting
+  const sortedMaterials = filterCourses(liveCourses, { sortBy: "materials-desc" })
+  assert.equal(sortedMaterials[0]?.code, "CS301")
+  assert.equal(sortedMaterials[0]?.materialsCount, 20)
+
+  const sortedQA = filterCourses(liveCourses, { sortBy: "qa-desc" })
+  assert.equal(sortedQA[0]?.code, "CS401")
+  assert.equal(sortedQA[0]?.questionsCount, 12)
 })

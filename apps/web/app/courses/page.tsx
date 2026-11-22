@@ -1,19 +1,14 @@
 import { Library } from "lucide-react"
 import { client } from "@gibiverse/api-client"
 import { CourseDirectoryClient } from "./course-directory-client"
+import type { CourseSummary, Department, University } from "./presentation"
 
 export const dynamic = "force-dynamic"
 
 export default async function CoursesPage() {
-  let universities: Array<{ id: string; name: string }> = []
-  let departments: Array<{ id: string; name: string; universityId: string }> = []
-  let courses: Array<{
-    id: string
-    name: string
-    code: string
-    universityId: string
-    departmentId: string
-  }> = []
+  let universities: University[] = []
+  let departments: Department[] = []
+  let courses: CourseSummary[] = []
 
   try {
     const [univRes, deptRes, courseRes] = await Promise.all([
@@ -24,15 +19,10 @@ export default async function CoursesPage() {
 
     universities = univRes.ok ? await univRes.json() : []
     departments = deptRes.ok ? await deptRes.json() : []
-    courses = courseRes.ok ? await courseRes.json() : []
+    courses = courseRes.ok ? ((await courseRes.json()) as CourseSummary[]) : []
   } catch {
     // Graceful fallback for offline build / disconnected API
   }
-
-  const primaryUniversity = universities[0] ?? null
-  const scopedDepartments = primaryUniversity
-    ? departments.filter((d) => d.universityId === primaryUniversity.id)
-    : departments
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -52,7 +42,7 @@ export default async function CoursesPage() {
 
       <CourseDirectoryClient
         universities={universities}
-        departments={scopedDepartments}
+        departments={departments}
         courses={courses}
       />
     </div>

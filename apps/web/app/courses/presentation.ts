@@ -49,6 +49,8 @@ export type CourseCardData = {
   questions?: PrototypeQuestion[]
 }
 
+export type CourseSummary = CourseCardData
+
 export type CourseSortOption = "code-asc" | "materials-desc" | "qa-desc"
 
 /** Pure helper: courses belonging to a university (empty when no university). */
@@ -133,7 +135,7 @@ export function formatQuestionsCount(count: number): {
   return { label, count, isZero }
 }
 
-/** Pure filter & sort engine for prototype course grid */
+/** Pure filter & sort engine for prototype and production course grids */
 export function filterPrototypeCourses(
   courses: CourseCardData[],
   options: {
@@ -196,6 +198,8 @@ export function filterPrototypeCourses(
     }
   })
 }
+
+export const filterCourses = filterPrototypeCourses
 
 export const PROTOTYPE_UNIVERSITIES: University[] = [
   { id: "u-aau", name: "Addis Ababa University" },
