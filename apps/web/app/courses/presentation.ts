@@ -1,20 +1,22 @@
-export type University = {
-  id: string
-  name: string
-}
+import type {
+  Course,
+  CourseDetailsData,
+  CourseMaterialType,
+  CourseSummary,
+  Department,
+  ScopedCourseMaterial,
+  ScopedQuestion,
+  University,
+} from "@gibiverse/shared/types"
 
-export type Department = {
-  id: string
-  name: string
-  universityId: string
-}
-
-export type Course = {
-  id: string
-  name: string
-  code: string
-  universityId: string
-  departmentId: string
+export type {
+  Course,
+  CourseDetailsData,
+  CourseSummary,
+  Department,
+  ScopedCourseMaterial,
+  ScopedQuestion,
+  University,
 }
 
 export type PrototypeMaterial = {
@@ -35,56 +37,19 @@ export type PrototypeQuestion = {
   createdAt?: string
 }
 
-export type CourseCardData = {
-  id: string
-  name: string
-  code: string
-  universityId: string
-  universityName: string
-  departmentId: string
-  departmentName: string
-  materialsCount: number
-  questionsCount: number
+export type CourseCardData = CourseSummary & {
   materials?: PrototypeMaterial[]
   questions?: PrototypeQuestion[]
 }
 
-export type CourseSummary = CourseCardData
-
-export type ScopedMaterialItem = {
-  id: string
-  title: string
-  courseMaterialType: string
-  academicPeriod: string
-  fileName: string
-  fileSize: number
-  mimeType: string
-  createdAt: string | Date
-}
-
-export type ScopedQuestionItem = {
-  id: string
-  title: string
-  body: string
-  voteScore: number
-  answerCount: number
-  acceptedAnswerId: string | null
-  createdAt: string | Date
-}
-
-export type CourseDetailsData = Omit<
-  CourseSummary,
-  "materials" | "questions"
-> & {
-  materials: ScopedMaterialItem[]
-  questions: ScopedQuestionItem[]
-}
+export type ScopedMaterialItem = ScopedCourseMaterial
+export type ScopedQuestionItem = ScopedQuestion
 
 /** Pure helper to filter materials by course material type on course details */
 export function filterCourseMaterialsByType(
-  materials: ScopedMaterialItem[],
-  type?: string | null
-): ScopedMaterialItem[] {
+  materials: ScopedCourseMaterial[],
+  type?: CourseMaterialType | "all" | "__all__" | string | null
+): ScopedCourseMaterial[] {
   if (!type || type === "all" || type === "__all__") return materials
   return materials.filter((m) => m.courseMaterialType === type)
 }
@@ -92,9 +57,17 @@ export function filterCourseMaterialsByType(
 /** Pure helper to provide friendly empty state copy on course details tabs */
 export function getCourseDetailsEmptyState(
   tab: "materials" | "qa",
-  courseCode: string
+  courseCode: string,
+  selectedType?: string | null
 ): { title: string; description: string; actionLabel: string } {
   if (tab === "materials") {
+    if (selectedType && selectedType !== "all" && selectedType !== "__all__") {
+      return {
+        title: `No ${selectedType} uploaded for ${courseCode} yet.`,
+        description: `There are currently no ${selectedType} materials available for this course. Be the first student to upload!`,
+        actionLabel: "Upload Course Material",
+      }
+    }
     return {
       title: `No course materials uploaded for ${courseCode} yet`,
       description:
@@ -105,7 +78,7 @@ export function getCourseDetailsEmptyState(
   return {
     title: `No questions asked in ${courseCode} yet`,
     description:
-      "Have an academic question or need clarification on a topic? Start the community discussion.",
+      "Have an academic question or need clarification on an academic question or course material? Start the community discussion.",
     actionLabel: "Ask a Question",
   }
 }

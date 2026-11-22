@@ -17,25 +17,33 @@ export default async function CourseDetailsPage({
   let courses: Course[] = []
 
   try {
-    const [courseRes, univRes, allCoursesRes] = await Promise.all([
-      (
-        client.api.courses as unknown as {
-          ":id": {
-            $get: (args: { param: { id: string } }) => Promise<Response>
-          }
+    const courseRes = await (
+      client.api.courses as unknown as {
+        ":id": {
+          $get: (args: { param: { id: string } }) => Promise<Response>
         }
-      )[":id"].$get({ param: { id } }),
-      client.api.universities.$get(),
-      client.api.courses.$get(),
-    ])
+      }
+    )[":id"].$get({ param: { id } })
 
     if (!courseRes.ok) {
       notFound()
     }
 
     course = (await courseRes.json()) as CourseDetailsData
+
+    const [univRes, scopedCoursesRes] = await Promise.all([
+      client.api.universities.$get(),
+      (
+        client.api.courses.$get as (args?: {
+          query?: { universityId?: string; departmentId?: string }
+        }) => Promise<Response>
+      )({
+        query: { universityId: course.universityId },
+      }),
+    ])
+
     universities = univRes.ok ? await univRes.json() : []
-    courses = allCoursesRes.ok ? await allCoursesRes.json() : []
+    courses = scopedCoursesRes.ok ? await scopedCoursesRes.json() : []
   } catch (err) {
     if (
       err &&

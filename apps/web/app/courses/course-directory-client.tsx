@@ -118,32 +118,24 @@ export function CourseDirectoryClient({
     })
   }, [courses, universities, departments])
 
-  // Dataset resolution: merge prototype data with any passed records
-  const allUniversities = React.useMemo(() => {
-    const map = new Map<string, University>()
-    for (const u of PROTOTYPE_UNIVERSITIES) map.set(u.id, u)
-    for (const u of universities) map.set(u.id, u)
-    return Array.from(map.values())
-  }, [universities])
-
-  const allDepartments = React.useMemo(() => {
-    const map = new Map<string, Department>()
-    for (const d of PROTOTYPE_DEPARTMENTS) map.set(d.id, d)
-    for (const d of departments) map.set(d.id, d)
-    return Array.from(map.values())
-  }, [departments])
+  // Active dataset & taxonomy resolution: strictly scope prototypes to prototype mode
+  const isPrototype = viewMode === "prototype"
+  const activeUniversities = isPrototype ? PROTOTYPE_UNIVERSITIES : universities
+  const activeDepartments = isPrototype ? PROTOTYPE_DEPARTMENTS : departments
+  const currentDataset = isPrototype ? PROTOTYPE_COURSES : liveNormalizedCourses
 
   const availableDepartments = React.useMemo(() => {
-    return getAvailableDepartments(allDepartments, selectedUniversityId)
-  }, [allDepartments, selectedUniversityId])
+    return getAvailableDepartments(activeDepartments, selectedUniversityId)
+  }, [activeDepartments, selectedUniversityId])
 
-  // Active dataset for grid / prototype
-  const currentDataset = React.useMemo(() => {
-    if (viewMode === "prototype") return PROTOTYPE_COURSES
-    return liveNormalizedCourses.length > 0
-      ? liveNormalizedCourses
-      : PROTOTYPE_COURSES
-  }, [viewMode, liveNormalizedCourses])
+  // Handle view mode change with filter reset
+  const handleViewModeChange = (mode: "grid" | "prototype" | "legacy") => {
+    setViewMode(mode)
+    setSelectedUniversityId(ALL_OPTION)
+    setSelectedDepartmentId(ALL_OPTION)
+    setSearchQuery("")
+    setSortBy("code-asc")
+  }
 
   // Handle university change with cascading auto-reset
   const handleUniversityChange = (newUnivId: string) => {
@@ -151,7 +143,7 @@ export function CourseDirectoryClient({
     if (
       selectedDepartmentId !== ALL_OPTION &&
       !isDepartmentCompatibleWithUniversity(
-        allDepartments,
+        activeDepartments,
         selectedDepartmentId,
         newUnivId
       )
@@ -234,7 +226,7 @@ export function CourseDirectoryClient({
         <div className="flex items-center rounded-xl border border-border bg-muted/50 p-1">
           <button
             type="button"
-            onClick={() => setViewMode("grid")}
+            onClick={() => handleViewModeChange("grid")}
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
               viewMode === "grid"
@@ -248,7 +240,7 @@ export function CourseDirectoryClient({
           </button>
           <button
             type="button"
-            onClick={() => setViewMode("prototype")}
+            onClick={() => handleViewModeChange("prototype")}
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
               viewMode === "prototype"
@@ -262,7 +254,7 @@ export function CourseDirectoryClient({
           </button>
           <button
             type="button"
-            onClick={() => setViewMode("legacy")}
+            onClick={() => handleViewModeChange("legacy")}
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all",
               viewMode === "legacy"
@@ -323,7 +315,7 @@ export function CourseDirectoryClient({
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value={ALL_OPTION}>All Universities</SelectItem>
-                      {allUniversities.map((uni) => (
+                      {activeUniversities.map((uni) => (
                         <SelectItem key={uni.id} value={uni.id}>
                           {uni.name}
                         </SelectItem>
@@ -408,7 +400,7 @@ export function CourseDirectoryClient({
                 <span className="truncate">
                   University:{" "}
                   <strong className="text-foreground">
-                    {allUniversities.find((u) => u.id === selectedUniversityId)
+                    {activeUniversities.find((u) => u.id === selectedUniversityId)
                       ?.name ?? selectedUniversityId}
                   </strong>
                 </span>
@@ -421,20 +413,25 @@ export function CourseDirectoryClient({
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center">
               <SlidersHorizontal className="mb-3 size-10 text-muted-foreground/60" />
               <h3 className="text-base font-semibold text-foreground">
-                No courses found
+                {currentDataset.length === 0
+                  ? "No courses available"
+                  : "No courses found"}
               </h3>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                No courses match the active filters. Try resetting the filters or
-                choosing another university or department.
+                {currentDataset.length === 0
+                  ? "No courses have been seeded or created yet."
+                  : "No courses match the active filters. Try resetting the filters or choosing another university or department."}
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleResetFilters}
-                className="mt-4"
-              >
-                Clear all filters
-              </Button>
+              {hasActiveFilters ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="mt-4"
+                >
+                  Clear all filters
+                </Button>
+              ) : null}
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -568,7 +565,7 @@ export function CourseDirectoryClient({
               </p>
             </div>
             <CoursePicker
-              universities={allUniversities}
+              universities={universities}
               courses={courses}
               courseId={selectedLegacyCourseId}
               onCourseChange={setSelectedLegacyCourseId}
@@ -872,7 +869,7 @@ export function CourseDirectoryClient({
                       No questions asked yet for {previewCourse.code}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      Have an academic question or need clarification on a topic?
+                      Have an academic question or need clarification on an academic question or course material?
                     </p>
                     <Link
                       href="/questions"

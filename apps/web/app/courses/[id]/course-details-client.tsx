@@ -56,7 +56,11 @@ export function CourseDetailsClient({
     return filterCourseMaterialsByType(course.materials, selectedType)
   }, [course.materials, selectedType])
 
-  const materialsEmpty = getCourseDetailsEmptyState("materials", course.code)
+  const materialsEmpty = getCourseDetailsEmptyState(
+    "materials",
+    course.code,
+    selectedType
+  )
   const qaEmpty = getCourseDetailsEmptyState("qa", course.code)
 
   return (
@@ -250,13 +254,23 @@ export function CourseDetailsClient({
                 <p className="mt-1 max-w-md text-sm text-muted-foreground">
                   {materialsEmpty.description}
                 </p>
-                <div className="mt-5">
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                   <UploadCourseMaterialButton
                     universities={universities}
                     courses={courses}
                     initialCourseId={course.id}
                     initialUniversityId={course.universityId}
                   />
+                  {selectedType !== "all" ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedType("all")}
+                      data-testid="clear-type-filter-button"
+                    >
+                      View all materials
+                    </Button>
+                  ) : null}
                 </div>
               </div>
             ) : (

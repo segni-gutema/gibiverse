@@ -350,7 +350,7 @@ test("filterCourseMaterialsByType filters materials by type and handles all", ()
     {
       id: "m3",
       title: "Midterm Exam 2025",
-      courseMaterialType: "past_exams",
+      courseMaterialType: "exam",
       academicPeriod: "2025/2026 semester 1",
       fileName: "midterm.pdf",
       fileSize: 4096,
@@ -363,18 +363,25 @@ test("filterCourseMaterialsByType filters materials by type and handles all", ()
   assert.equal(filterCourseMaterialsByType(materials, "notes")[0]?.id, "m1")
   assert.equal(filterCourseMaterialsByType(materials, "slides").length, 1)
   assert.equal(filterCourseMaterialsByType(materials, "slides")[0]?.id, "m2")
+  assert.equal(filterCourseMaterialsByType(materials, "exam").length, 1)
+  assert.equal(filterCourseMaterialsByType(materials, "exam")[0]?.id, "m3")
   assert.equal(filterCourseMaterialsByType(materials, "all").length, 3)
   assert.equal(filterCourseMaterialsByType(materials, null).length, 3)
 })
 
-test("getCourseDetailsEmptyState provides contextual copy per tab", () => {
+test("getCourseDetailsEmptyState provides contextual copy per tab and filter", () => {
   const materialsEmpty = getCourseDetailsEmptyState("materials", "CS201")
   assert.ok(materialsEmpty.title.includes("CS201"))
   assert.ok(materialsEmpty.description.includes("lecture notes"))
   assert.equal(materialsEmpty.actionLabel, "Upload Course Material")
 
+  const filterEmpty = getCourseDetailsEmptyState("materials", "CS201", "exam")
+  assert.equal(filterEmpty.title, "No exam uploaded for CS201 yet.")
+  assert.ok(filterEmpty.description.includes("exam"))
+
   const qaEmpty = getCourseDetailsEmptyState("qa", "CS201")
   assert.ok(qaEmpty.title.includes("CS201"))
   assert.ok(qaEmpty.description.includes("clarification"))
+  assert.ok(!qaEmpty.description.includes("topic"), "Should not use prohibited word topic")
   assert.equal(qaEmpty.actionLabel, "Ask a Question")
 })
