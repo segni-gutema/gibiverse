@@ -8,7 +8,6 @@ import {
   X,
   GraduationCap,
   LogOut,
-  ChevronDown,
   BookOpen,
   Library,
   MessageSquareQuote,
@@ -19,18 +18,16 @@ import { Input } from "@gibiverse/ui/components/input"
 import { cn } from "@gibiverse/ui/lib/utils"
 import { useSession, signOut } from "@/lib/auth-client"
 
-interface NavItem {
+export interface NavItem {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
 }
 
-const navItems: NavItem[] = [
-  { label: "Home", href: "/", icon: GraduationCap },
+export const navItems: NavItem[] = [
   { label: "Courses", href: "/courses", icon: Library },
   { label: "Course Materials", href: "/course-materials", icon: BookOpen },
   { label: "Q&A", href: "/questions", icon: MessageSquareQuote },
-  { label: "Search", href: "/search", icon: Search },
 ]
 
 interface StudentAvatarProps {
@@ -42,15 +39,28 @@ interface StudentAvatarProps {
   size?: "sm" | "md"
 }
 
-function StudentAvatar({ student, size = "sm" }: StudentAvatarProps) {
-  const initials = student?.name
-    ? student.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "ST"
+export function getAvatarInitials(student?: {
+  name?: string | null
+  email?: string | null
+}): string {
+  if (student?.name) {
+    const letters = student.name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+    if (letters) return letters
+  }
+  if (student?.email) {
+    return student.email.slice(0, 2).toUpperCase()
+  }
+  return "ST"
+}
+
+export function StudentAvatar({ student, size = "sm" }: StudentAvatarProps) {
+  const initials = getAvatarInitials(student)
 
   const sizeClass = size === "md" ? "size-8" : "size-7"
 
@@ -228,17 +238,13 @@ export function Header() {
               <button
                 type="button"
                 onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-                className="flex items-center gap-2 rounded-full border border-border p-1 pr-3 transition-colors hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none"
+                className="flex size-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none"
                 aria-expanded={avatarMenuOpen}
                 aria-haspopup="menu"
                 aria-label="Student menu"
                 data-testid="student-avatar-trigger"
               >
                 <StudentAvatar student={student} size="sm" />
-                <span className="max-w-[120px] truncate text-sm font-medium text-foreground">
-                  {student.name || student.email}
-                </span>
-                <ChevronDown className="size-3.5 text-muted-foreground" />
               </button>
 
               {/* Avatar Dropdown */}

@@ -83,7 +83,7 @@ export function CoursePicker({
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Label htmlFor="university-picker">University</Label>
         <Select
-          value={allowClear ? (universityId ?? ALL_VALUE) : universityId}
+          value={universityId ?? null}
           onValueChange={handleUniversityChange}
           disabled={disabled}
         >
@@ -92,16 +92,12 @@ export function CoursePicker({
             className="w-full"
             data-testid="university-picker-trigger"
           >
-            <SelectValue
-              placeholder={
-                allowClear ? "All universities" : "Select a university"
-              }
-            />
+            <SelectValue placeholder="Select a university" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               {allowClear ? (
-                <SelectItem value={ALL_VALUE}>All universities</SelectItem>
+                <SelectItem value={ALL_VALUE}>Select a university</SelectItem>
               ) : null}
               {universities.map((uni) => (
                 <SelectItem key={uni.id} value={uni.id}>
@@ -116,7 +112,7 @@ export function CoursePicker({
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <Label htmlFor="course-picker">Course</Label>
         <Select
-          value={allowClear ? (courseId ?? ALL_VALUE) : courseId}
+          value={courseId ?? null}
           onValueChange={handleCourseChange}
           disabled={disabled || !universityId}
         >
@@ -128,9 +124,7 @@ export function CoursePicker({
             <SelectValue
               placeholder={
                 universityId
-                  ? allowClear
-                    ? "All courses"
-                    : "Select a course"
+                  ? "Select a course"
                   : "Choose a university first"
               }
             />
@@ -138,7 +132,7 @@ export function CoursePicker({
           <SelectContent>
             <SelectGroup>
               {allowClear && universityId ? (
-                <SelectItem value={ALL_VALUE}>All courses</SelectItem>
+                <SelectItem value={ALL_VALUE}>Select a course</SelectItem>
               ) : null}
               {filteredCourses.map((course) => (
                 <SelectItem key={course.id} value={course.id}>

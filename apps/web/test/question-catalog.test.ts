@@ -5,6 +5,13 @@ import {
   hasActiveQuestionFilters,
   questionCatalogEmptyState,
 } from "../app/questions/presentation.js"
+import { ACTIVE_TOGGLE_CLASSES } from "../lib/toggle-styles.js"
+
+test("ACTIVE_TOGGLE_CLASSES provides emerald styling for active toggles", () => {
+  assert.ok(ACTIVE_TOGGLE_CLASSES.includes("text-emerald-700"))
+  assert.ok(ACTIVE_TOGGLE_CLASSES.includes("bg-emerald-50"))
+  assert.ok(ACTIVE_TOGGLE_CLASSES.includes("border-emerald-600/30"))
+})
 
 test("buildQuestionsQuery includes course and non-default sort", () => {
   assert.strictEqual(

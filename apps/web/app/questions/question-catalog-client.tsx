@@ -3,17 +3,19 @@
 import * as React from "react"
 import Link from "next/link"
 import { MessageCircle } from "lucide-react"
+import { cn } from "@gibiverse/ui/lib/utils"
 import { Badge } from "@gibiverse/ui/components/badge"
 import { Button } from "@gibiverse/ui/components/button"
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@gibiverse/ui/components/toggle-group"
-import { CoursePicker } from "@/components/course-picker"
+import { CourseFilterDropdown } from "@/components/course-filter-dropdown"
 import { VoteControls } from "@/components/vote-controls"
 import { client } from "@gibiverse/api-client"
 import type { Course, University } from "@/app/courses/presentation"
 import { formatRelativeUploadDate } from "@/lib/formatters"
+import { ACTIVE_TOGGLE_CLASSES } from "@/lib/toggle-styles"
 import {
   hasActiveQuestionFilters,
   questionCatalogEmptyState,
@@ -91,25 +93,12 @@ export function QuestionCatalogClient({
   const emptyState = questionCatalogEmptyState(filters)
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <section
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-3"
         aria-labelledby="filters-heading"
       >
-        <div>
-          <h2
-            id="filters-heading"
-            className="text-lg font-semibold text-foreground"
-          >
-            Browse questions
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Sort by activity or filter by course.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-foreground">Sort</p>
+        <div className="flex flex-wrap items-center gap-3">
           <ToggleGroup
             variant="outline"
             size="sm"
@@ -132,30 +121,27 @@ export function QuestionCatalogClient({
                 key={option.value}
                 value={option.value}
                 aria-label={option.label}
+                className={ACTIVE_TOGGLE_CLASSES}
               >
                 {option.label}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-        </div>
 
-        <CoursePicker
-          universities={universities}
-          courses={courses}
-          universityId={filters.universityId}
-          courseId={filters.courseId}
-          allowClear
-          onUniversityChange={(universityId) =>
-            setFilters((prev) => ({
-              ...prev,
-              universityId,
-              courseId: null,
-            }))
-          }
-          onCourseChange={(courseId) =>
-            setFilters((prev) => ({ ...prev, courseId }))
-          }
-        />
+          <CourseFilterDropdown
+            universities={universities}
+            courses={courses}
+            selectedUniversityId={filters.universityId}
+            selectedCourseId={filters.courseId}
+            onFilterChange={({ universityId, courseId }) =>
+              setFilters((prev) => ({
+                ...prev,
+                universityId,
+                courseId,
+              }))
+            }
+          />
+        </div>
       </section>
 
       <section
@@ -164,12 +150,6 @@ export function QuestionCatalogClient({
         aria-busy={isLoading}
       >
         <div className="flex items-center justify-between gap-3">
-          <h2
-            id="catalog-heading"
-            className="text-lg font-semibold text-foreground"
-          >
-            Questions
-          </h2>
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Updating…</p>
           ) : null}
@@ -201,6 +181,7 @@ export function QuestionCatalogClient({
                   setFilters((prev) => ({
                     ...prev,
                     courseId: null,
+                    universityId: null,
                     departmentId: null,
                   }))
                 }
@@ -211,12 +192,16 @@ export function QuestionCatalogClient({
           </div>
         ) : (
           <ul
-            className="grid grid-cols-1 gap-4 lg:grid-cols-2"
+            className="flex max-w-4xl flex-col gap-4"
             data-testid="questions-grid"
           >
             {questions.map((question) => (
               <li key={question.id}>
-                <QuestionCard question={question} />
+                <QuestionCard
+                  question={question}
+                  courses={courses}
+                  universities={universities}
+                />
               </li>
             ))}
           </ul>
@@ -226,13 +211,26 @@ export function QuestionCatalogClient({
   )
 }
 
-function QuestionCard({ question }: { question: CatalogQuestion }) {
+function QuestionCard({
+  question,
+  courses,
+  universities,
+}: {
+  question: CatalogQuestion
+  courses?: Course[]
+  universities?: University[]
+}) {
+  const course = courses?.find((c) => c.id === question.courseId)
+  const universityName = course
+    ? universities?.find((u) => u.id === course.universityId)?.name
+    : null
+
   return (
     <article
-      className="flex h-full gap-4 rounded-lg border border-border bg-background p-4"
+      className="group flex gap-4 rounded-xl border border-border bg-card p-5 shadow-xs transition-all hover:border-foreground/20 hover:shadow-md"
       data-testid={`question-card-${question.id}`}
     >
-      <div className="flex shrink-0 pt-0.5">
+      <div className="flex shrink-0 flex-col items-center justify-start pt-0.5">
         <VoteControls
           targetType="question"
           targetId={question.id}
@@ -243,28 +241,57 @@ function QuestionCard({ question }: { question: CatalogQuestion }) {
         />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{question.courseCode}</Badge>
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            {universityName ? (
+              <>
+                <span className="truncate font-medium text-foreground/80">
+                  {universityName}
+                </span>
+                <span aria-hidden="true" className="text-muted-foreground/50">
+                  ·
+                </span>
+              </>
+            ) : null}
+            <Badge variant="secondary" className="font-mono text-[11px]">
+              {question.courseCode}
+            </Badge>
+          </div>
+
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+              question.answerCount > 0
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
             <MessageCircle className="size-3.5" aria-hidden="true" />
-            <span>{question.answerCount} answers</span>
+            <span>
+              {question.answerCount}{" "}
+              {question.answerCount === 1 ? "answer" : "answers"}
+            </span>
           </span>
         </div>
-        <h3 className="text-base font-semibold text-foreground">
+
+        <h3 className="text-base font-semibold text-foreground transition-colors group-hover:text-primary">
           <Link href={`/questions/${question.id}`} className="hover:underline">
             {question.title}
           </Link>
         </h3>
+
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {question.body}
         </p>
-        <p className="mt-auto text-sm text-muted-foreground">
-          {question.studentName}
-          <span aria-hidden="true"> · </span>
+
+        <div className="mt-auto flex items-center justify-between border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground/80">
+            {question.studentName}
+          </span>
           <time dateTime={question.createdAt}>
             {formatRelativeUploadDate(question.createdAt)}
           </time>
-        </p>
+        </div>
       </div>
     </article>
   )

@@ -1,0 +1,2 @@
+export const ACTIVE_TOGGLE_CLASSES =
+  "aria-pressed:bg-emerald-50 aria-pressed:text-emerald-700 aria-pressed:border-emerald-600/30 data-[state=on]:bg-emerald-50 data-[state=on]:text-emerald-700 data-[state=on]:border-emerald-600/30 dark:aria-pressed:bg-emerald-950/40 dark:aria-pressed:text-emerald-400 dark:aria-pressed:border-emerald-500/30 dark:data-[state=on]:bg-emerald-950/40 dark:data-[state=on]:text-emerald-400 dark:data-[state=on]:border-emerald-500/30"

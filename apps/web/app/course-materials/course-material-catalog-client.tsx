@@ -4,32 +4,22 @@ import * as React from "react"
 import Link from "next/link"
 import {
   BookOpen,
-  ChevronDown,
   File,
   FileText,
   Presentation,
-  X,
 } from "lucide-react"
 import { cn } from "@gibiverse/ui/lib/utils"
 import { Badge } from "@gibiverse/ui/components/badge"
 import { Button } from "@gibiverse/ui/components/button"
-import { Label } from "@gibiverse/ui/components/label"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@gibiverse/ui/components/select"
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@gibiverse/ui/components/toggle-group"
 import { client } from "@gibiverse/api-client"
 import type { Course, University } from "@/app/courses/presentation"
-import { filterCoursesByUniversity } from "@/app/courses/presentation"
 import { formatRelativeUploadDate } from "@/lib/formatters"
+import { ACTIVE_TOGGLE_CLASSES } from "@/lib/toggle-styles"
+import { CourseFilterDropdown } from "@/components/course-filter-dropdown"
 import {
   catalogEmptyState,
   hasActiveCatalogFilters,
@@ -42,11 +32,7 @@ import {
   type CourseMaterialType,
 } from "@gibiverse/shared/types"
 
-const ALL_VALUE = "__all__"
 const ALL_TYPE_KEY = "__all_types__"
-
-const ACTIVE_TOGGLE_CLASSES =
-  "aria-pressed:bg-emerald-50 aria-pressed:text-emerald-700 aria-pressed:border-emerald-600/30 data-[state=on]:bg-emerald-50 data-[state=on]:text-emerald-700 data-[state=on]:border-emerald-600/30 dark:aria-pressed:bg-emerald-950/40 dark:aria-pressed:text-emerald-400 dark:aria-pressed:border-emerald-500/30 dark:data-[state=on]:bg-emerald-950/40 dark:data-[state=on]:text-emerald-400 dark:data-[state=on]:border-emerald-500/30"
 
 function FileTypeIcon({
   courseMaterialType,
@@ -286,61 +272,8 @@ function CatalogFiltersBar({
   filters: CourseMaterialFilters
   onFiltersChange: (filters: CourseMaterialFilters) => void
 }) {
-  const [dropdownOpen, setDropdownOpen] = React.useState(false)
-  const dropdownRef = React.useRef<HTMLDivElement>(null)
-  const buttonRef = React.useRef<HTMLButtonElement>(null)
-
-  const filteredCourses = filterCoursesByUniversity(
-    courses,
-    filters.universityId
-  )
   const activeType = filters.courseMaterialType
   const typeValue = activeType ? [activeType] : [ALL_TYPE_KEY]
-
-  // Build course label for the dropdown button
-  const hasCourseFilter = Boolean(filters.universityId || filters.courseId)
-  const courseButtonParts: string[] = []
-  if (filters.universityId) {
-    const uni = universities.find((u) => u.id === filters.universityId)
-    if (uni) courseButtonParts.push(uni.name)
-  }
-  if (filters.courseId) {
-    const course = courses.find((c) => c.id === filters.courseId)
-    if (course) courseButtonParts.push(course.code)
-  }
-  const courseButtonLabel =
-    courseButtonParts.length > 0
-      ? courseButtonParts.join(" · ")
-      : "Filter by course"
-
-  // Close dropdown on outside click (ignore Base UI Select portals)
-  React.useEffect(() => {
-    if (!dropdownOpen) return
-    function handleClick(e: MouseEvent) {
-      const target = e.target as HTMLElement
-      if (
-        dropdownRef.current?.contains(target) ||
-        buttonRef.current?.contains(target) ||
-        target.closest("[data-slot='select-content']") ||
-        target.closest("[data-slot='select-item']")
-      ) {
-        return
-      }
-      setDropdownOpen(false)
-    }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [dropdownOpen])
-
-  // Close on Escape
-  React.useEffect(() => {
-    if (!dropdownOpen) return
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setDropdownOpen(false)
-    }
-    document.addEventListener("keydown", handleKey)
-    return () => document.removeEventListener("keydown", handleKey)
-  }, [dropdownOpen])
 
   return (
     <div
@@ -393,116 +326,20 @@ function CatalogFiltersBar({
         ))}
       </ToggleGroup>
 
-      {/* Filter by course dropdown */}
-      <div className="relative">
-        <Button
-          ref={buttonRef}
-          variant="outline"
-          size="sm"
-          onClick={() => setDropdownOpen((prev) => !prev)}
-          className={cn(
-            "gap-1.5",
-            hasCourseFilter &&
-              "border-emerald-600/30 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
-          )}
-        >
-          {courseButtonLabel}
-          {hasCourseFilter ? (
-            <span
-              role="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                onFiltersChange({
-                  ...filters,
-                  universityId: null,
-                  courseId: null,
-                })
-              }}
-              className="ml-0.5 flex size-4 items-center justify-center rounded-full hover:bg-muted-foreground/20"
-              aria-label="Clear course filter"
-            >
-              <X className="size-3" />
-            </span>
-          ) : (
-            <ChevronDown className="size-3.5" />
-          )}
-        </Button>
-
-        {dropdownOpen ? (
-          <div
-            ref={dropdownRef}
-            className="absolute left-0 top-full z-40 mt-1.5 w-72 rounded-lg border border-border bg-background p-3 shadow-lg"
-          >
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-xs text-muted-foreground">
-                  University
-                </Label>
-                <Select
-                  value={filters.universityId ?? ALL_VALUE}
-                  onValueChange={(v) =>
-                    onFiltersChange({
-                      ...filters,
-                      universityId: v === ALL_VALUE ? null : v,
-                      courseId: null,
-                    })
-                  }
-                >
-                  <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="All universities" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value={ALL_VALUE}>All universities</SelectItem>
-                      {universities.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-xs text-muted-foreground">Course</Label>
-                <Select
-                  value={filters.courseId ?? ALL_VALUE}
-                  onValueChange={(v) =>
-                    onFiltersChange({
-                      ...filters,
-                      courseId: v === ALL_VALUE ? null : v,
-                    })
-                  }
-                  disabled={!filters.universityId}
-                >
-                  <SelectTrigger className="h-9 text-sm">
-                    <SelectValue
-                      placeholder={
-                        filters.universityId
-                          ? "All courses"
-                          : "Pick university first"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {filters.universityId ? (
-                        <SelectItem value={ALL_VALUE}>All courses</SelectItem>
-                      ) : null}
-                      {filteredCourses.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.code} — {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </div>
+      {/* Shared Filter by course dropdown */}
+      <CourseFilterDropdown
+        universities={universities}
+        courses={courses}
+        selectedUniversityId={filters.universityId}
+        selectedCourseId={filters.courseId}
+        onFilterChange={({ universityId, courseId }) =>
+          onFiltersChange({
+            ...filters,
+            universityId,
+            courseId,
+          })
+        }
+      />
     </div>
   )
 }

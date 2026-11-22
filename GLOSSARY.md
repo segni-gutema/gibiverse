@@ -11,7 +11,7 @@ An institution of higher education. The top of the academic hierarchy.
 _Avoid_: School, institution, college
 
 **Department**:
-An internal academic unit within a university that groups related courses. Retained in the data model for administrative grouping, while student-facing workflows use University directly.
+An internal academic unit within a university that groups related courses. Used as a browsing and filtering dimension in the Course Directory, while quick upload and question pickers use University directly.
 _Avoid_: Faculty, school, division
 
 **Course**:
