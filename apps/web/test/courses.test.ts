@@ -3,6 +3,8 @@ import assert from "node:assert/strict"
 import {
   filterCourses,
   filterPrototypeCourses,
+  filterCourseMaterialsByType,
+  getCourseDetailsEmptyState,
   getAvailableDepartments,
   isDepartmentCompatibleWithUniversity,
   formatMaterialsCount,
@@ -12,6 +14,7 @@ import {
   PROTOTYPE_DEPARTMENTS,
   type CourseCardData,
   type CourseSummary,
+  type ScopedMaterialItem,
   type Department,
 } from "../app/courses/presentation.js"
 
@@ -320,4 +323,58 @@ test("filterCourses processes live CourseSummary catalog with cascading filters,
   const sortedQA = filterCourses(liveCourses, { sortBy: "qa-desc" })
   assert.equal(sortedQA[0]?.code, "CS401")
   assert.equal(sortedQA[0]?.questionsCount, 12)
+})
+
+test("filterCourseMaterialsByType filters materials by type and handles all", () => {
+  const materials: ScopedMaterialItem[] = [
+    {
+      id: "m1",
+      title: "Lecture Notes 1",
+      courseMaterialType: "notes",
+      academicPeriod: "2026/2027 semester 1",
+      fileName: "notes.pdf",
+      fileSize: 1024,
+      mimeType: "application/pdf",
+      createdAt: new Date(),
+    },
+    {
+      id: "m2",
+      title: "Slide Deck 1",
+      courseMaterialType: "slides",
+      academicPeriod: "2026/2027 semester 1",
+      fileName: "slides.pdf",
+      fileSize: 2048,
+      mimeType: "application/pdf",
+      createdAt: new Date(),
+    },
+    {
+      id: "m3",
+      title: "Midterm Exam 2025",
+      courseMaterialType: "past_exams",
+      academicPeriod: "2025/2026 semester 1",
+      fileName: "midterm.pdf",
+      fileSize: 4096,
+      mimeType: "application/pdf",
+      createdAt: new Date(),
+    },
+  ]
+
+  assert.equal(filterCourseMaterialsByType(materials, "notes").length, 1)
+  assert.equal(filterCourseMaterialsByType(materials, "notes")[0]?.id, "m1")
+  assert.equal(filterCourseMaterialsByType(materials, "slides").length, 1)
+  assert.equal(filterCourseMaterialsByType(materials, "slides")[0]?.id, "m2")
+  assert.equal(filterCourseMaterialsByType(materials, "all").length, 3)
+  assert.equal(filterCourseMaterialsByType(materials, null).length, 3)
+})
+
+test("getCourseDetailsEmptyState provides contextual copy per tab", () => {
+  const materialsEmpty = getCourseDetailsEmptyState("materials", "CS201")
+  assert.ok(materialsEmpty.title.includes("CS201"))
+  assert.ok(materialsEmpty.description.includes("lecture notes"))
+  assert.equal(materialsEmpty.actionLabel, "Upload Course Material")
+
+  const qaEmpty = getCourseDetailsEmptyState("qa", "CS201")
+  assert.ok(qaEmpty.title.includes("CS201"))
+  assert.ok(qaEmpty.description.includes("clarification"))
+  assert.equal(qaEmpty.actionLabel, "Ask a Question")
 })

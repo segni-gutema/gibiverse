@@ -233,3 +233,44 @@ test("GET /api/courses?universityId=...&departmentId=... filters by both", async
     body.every((c) => c.universityId === uniIdA && c.departmentId === deptIdA2)
   )
 })
+
+test("GET /api/courses/:id returns 404 for non-existent course", async () => {
+  const res = await app.request(`/api/courses/non_existent_course_123`)
+  assert.strictEqual(res.status, 404)
+  const body = (await res.json()) as { error: string }
+  assert.ok(body.error)
+})
+
+test("GET /api/courses/:id returns course details with scoped materials and questions", async () => {
+  const res = await app.request(`/api/courses/${courseId1}`)
+  assert.strictEqual(res.status, 200)
+  const body = (await res.json()) as {
+    id: string
+    name: string
+    code: string
+    universityId: string
+    universityName: string
+    departmentId: string
+    departmentName: string
+    materialsCount: number
+    questionsCount: number
+    materials: Array<{ id: string; title: string; courseMaterialType: string }>
+    questions: Array<{ id: string; title: string; voteScore: number }>
+  }
+
+  assert.strictEqual(body.id, courseId1)
+  assert.strictEqual(body.code, courseCode1)
+  assert.strictEqual(body.universityName, `University A ${suffix}`)
+  assert.strictEqual(body.departmentName, `Dept A1 ${suffix}`)
+  assert.strictEqual(body.materialsCount, 2)
+  assert.strictEqual(body.questionsCount, 1)
+
+  assert.ok(Array.isArray(body.materials))
+  assert.strictEqual(body.materials.length, 2)
+  assert.ok(body.materials.some((m) => m.id === matId1))
+  assert.ok(body.materials.some((m) => m.id === matId2))
+
+  assert.ok(Array.isArray(body.questions))
+  assert.strictEqual(body.questions.length, 1)
+  assert.strictEqual(body.questions[0]?.id, qId1)
+})
