@@ -2,16 +2,32 @@ import { Library } from "lucide-react"
 import { client } from "@gibiverse/api-client"
 import { CourseDirectoryClient } from "./course-directory-client"
 
-export default async function CoursesPage() {
-  const [univRes, deptRes, courseRes] = await Promise.all([
-    client.api.universities.$get(),
-    client.api.departments.$get(),
-    client.api.courses.$get(),
-  ])
+export const dynamic = "force-dynamic"
 
-  const universities = univRes.ok ? await univRes.json() : []
-  const departments = deptRes.ok ? await deptRes.json() : []
-  const courses = courseRes.ok ? await courseRes.json() : []
+export default async function CoursesPage() {
+  let universities: Array<{ id: string; name: string }> = []
+  let departments: Array<{ id: string; name: string; universityId: string }> = []
+  let courses: Array<{
+    id: string
+    name: string
+    code: string
+    universityId: string
+    departmentId: string
+  }> = []
+
+  try {
+    const [univRes, deptRes, courseRes] = await Promise.all([
+      client.api.universities.$get(),
+      client.api.departments.$get(),
+      client.api.courses.$get(),
+    ])
+
+    universities = univRes.ok ? await univRes.json() : []
+    departments = deptRes.ok ? await deptRes.json() : []
+    courses = courseRes.ok ? await courseRes.json() : []
+  } catch {
+    // Graceful fallback for offline build / disconnected API
+  }
 
   const primaryUniversity = universities[0] ?? null
   const scopedDepartments = primaryUniversity
@@ -29,9 +45,7 @@ export default async function CoursesPage() {
             Course Directory
           </h1>
           <p className="text-sm text-muted-foreground">
-            {primaryUniversity
-              ? `Browse departments and courses at ${primaryUniversity.name}.`
-              : "Browse academic departments and their offered courses."}
+            Browse courses, explore materials, and participate in academic Q&amp;A.
           </p>
         </div>
       </div>
