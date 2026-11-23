@@ -9,6 +9,7 @@
     "./hc": "./src/hc.ts"
   },
   "scripts": {
+    "predev": "pnpm --filter @gibiverse/shared build",
     "dev": "NODE_OPTIONS=\"--dns-result-order=ipv4first\" tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
