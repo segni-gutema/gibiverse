@@ -9,17 +9,21 @@ import type { Course, University } from "@/app/courses/presentation"
 import { ASK_QUESTION_PATH, getAskSignInHref } from "@/app/questions/presentation"
 import { useSession } from "@/lib/auth-client"
 
-type AskQuestionButtonProps = {
+export type AskQuestionButtonProps = {
   universities: University[]
   courses: Course[]
   /** When true, open the dialog immediately (authenticated deep link). */
   autoOpen?: boolean
+  initialCourseId?: string
+  initialUniversityId?: string
 }
 
 export function AskQuestionButton({
   universities,
   courses,
   autoOpen = false,
+  initialCourseId,
+  initialUniversityId,
 }: AskQuestionButtonProps) {
   const router = useRouter()
   const { data: session, isPending } = useSession()
@@ -56,6 +60,8 @@ export function AskQuestionButton({
         onOpenChange={setOpen}
         universities={universities}
         courses={courses}
+        initialCourseId={initialCourseId}
+        initialUniversityId={initialUniversityId}
       />
     </>
   )

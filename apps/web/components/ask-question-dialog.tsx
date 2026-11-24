@@ -19,11 +19,13 @@ import { client } from "@gibiverse/api-client"
 import { askQuestionSchema } from "@gibiverse/shared/types"
 import type { Course, University } from "@/app/courses/presentation"
 
-type AskQuestionDialogProps = {
+export type AskQuestionDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   universities: University[]
   courses: Course[]
+  initialCourseId?: string
+  initialUniversityId?: string
 }
 
 export function AskQuestionDialog({
@@ -31,20 +33,39 @@ export function AskQuestionDialog({
   onOpenChange,
   universities,
   courses,
+  initialCourseId,
+  initialUniversityId,
 }: AskQuestionDialogProps) {
   const router = useRouter()
+  const resolvedUnivId =
+    initialUniversityId ??
+    (initialCourseId
+      ? courses.find((c) => c.id === initialCourseId)?.universityId ?? null
+      : null)
+
   const [title, setTitle] = React.useState("")
   const [body, setBody] = React.useState("")
-  const [courseId, setCourseId] = React.useState<string | null>(null)
-  const [universityId, setUniversityId] = React.useState<string | null>(null)
+  const [courseId, setCourseId] = React.useState<string | null>(
+    initialCourseId ?? null
+  )
+  const [universityId, setUniversityId] = React.useState<string | null>(
+    resolvedUnivId
+  )
   const [error, setError] = React.useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  React.useEffect(() => {
+    if (open && initialCourseId) {
+      setCourseId(initialCourseId)
+      setUniversityId(resolvedUnivId)
+    }
+  }, [open, initialCourseId, resolvedUnivId])
 
   function resetForm() {
     setTitle("")
     setBody("")
-    setCourseId(null)
-    setUniversityId(null)
+    setCourseId(initialCourseId ?? null)
+    setUniversityId(resolvedUnivId)
     setError(null)
     setIsSubmitting(false)
   }

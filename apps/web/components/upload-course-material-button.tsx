@@ -17,12 +17,16 @@ export type UploadCourseMaterialButtonProps = {
   courses: Course[]
   /** When true, open the wizard immediately (authenticated deep link). */
   autoOpen?: boolean
+  initialCourseId?: string
+  initialUniversityId?: string
 }
 
 export function UploadCourseMaterialButton({
   universities,
   courses,
   autoOpen = false,
+  initialCourseId,
+  initialUniversityId,
 }: UploadCourseMaterialButtonProps) {
   const router = useRouter()
   const { data: session, isPending } = useSession()
@@ -59,6 +63,8 @@ export function UploadCourseMaterialButton({
         onOpenChange={setOpen}
         universities={universities}
         courses={courses}
+        initialCourseId={initialCourseId}
+        initialUniversityId={initialUniversityId}
       />
     </>
   )

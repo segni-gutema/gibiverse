@@ -1,22 +1,28 @@
 import { Library } from "lucide-react"
 import { client } from "@gibiverse/api-client"
 import { CourseDirectoryClient } from "./course-directory-client"
+import type { CourseSummary, Department, University } from "./presentation"
+
+export const dynamic = "force-dynamic"
 
 export default async function CoursesPage() {
-  const [univRes, deptRes, courseRes] = await Promise.all([
-    client.api.universities.$get(),
-    client.api.departments.$get(),
-    client.api.courses.$get(),
-  ])
+  let universities: University[] = []
+  let departments: Department[] = []
+  let courses: CourseSummary[] = []
 
-  const universities = univRes.ok ? await univRes.json() : []
-  const departments = deptRes.ok ? await deptRes.json() : []
-  const courses = courseRes.ok ? await courseRes.json() : []
+  try {
+    const [univRes, deptRes, courseRes] = await Promise.all([
+      client.api.universities.$get(),
+      client.api.departments.$get(),
+      client.api.courses.$get(),
+    ])
 
-  const primaryUniversity = universities[0] ?? null
-  const scopedDepartments = primaryUniversity
-    ? departments.filter((d) => d.universityId === primaryUniversity.id)
-    : departments
+    universities = univRes.ok ? await univRes.json() : []
+    departments = deptRes.ok ? await deptRes.json() : []
+    courses = courseRes.ok ? ((await courseRes.json()) as CourseSummary[]) : []
+  } catch {
+    // Graceful fallback for offline build / disconnected API
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -29,16 +35,14 @@ export default async function CoursesPage() {
             Course Directory
           </h1>
           <p className="text-sm text-muted-foreground">
-            {primaryUniversity
-              ? `Browse departments and courses at ${primaryUniversity.name}.`
-              : "Browse academic departments and their offered courses."}
+            Browse courses, explore materials, and participate in academic Q&amp;A.
           </p>
         </div>
       </div>
 
       <CourseDirectoryClient
         universities={universities}
-        departments={scopedDepartments}
+        departments={departments}
         courses={courses}
       />
     </div>

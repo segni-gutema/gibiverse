@@ -24,6 +24,9 @@ dist
 # turbo
 .turbo
 
+# worktrees
+.worktrees/
+
 # local file storage
 uploads/
 

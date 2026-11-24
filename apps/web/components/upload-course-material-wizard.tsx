@@ -52,6 +52,8 @@ export type UploadCourseMaterialWizardProps = {
   onOpenChange: (open: boolean) => void
   universities: University[]
   courses: Course[]
+  initialCourseId?: string
+  initialUniversityId?: string
 }
 
 export type UploadPhase = "form" | "uploading" | "error" | "success"
@@ -61,6 +63,8 @@ export function UploadCourseMaterialWizard({
   onOpenChange,
   universities,
   courses,
+  initialCourseId,
+  initialUniversityId,
 }: UploadCourseMaterialWizardProps) {
   const router = useRouter()
   const [step, setStep] = React.useState<1 | 2>(1)
@@ -70,9 +74,26 @@ export function UploadCourseMaterialWizard({
   const [fileError, setFileError] = React.useState<string | null>(null)
   const [formatLabel, setFormatLabel] = React.useState<string | null>(null)
 
+  const resolvedUnivId =
+    initialUniversityId ??
+    (initialCourseId
+      ? courses.find((c) => c.id === initialCourseId)?.universityId ?? null
+      : null)
+
   const [title, setTitle] = React.useState("")
-  const [courseId, setCourseId] = React.useState<string | null>(null)
-  const [universityId, setUniversityId] = React.useState<string | null>(null)
+  const [courseId, setCourseId] = React.useState<string | null>(
+    initialCourseId ?? null
+  )
+  const [universityId, setUniversityId] = React.useState<string | null>(
+    resolvedUnivId
+  )
+
+  React.useEffect(() => {
+    if (open && initialCourseId) {
+      setCourseId(initialCourseId)
+      setUniversityId(resolvedUnivId)
+    }
+  }, [open, initialCourseId, resolvedUnivId])
   const [courseMaterialType, setCourseMaterialType] =
     React.useState<CourseMaterialType>("other")
   const [academicPeriod, setAcademicPeriod] = React.useState(
@@ -96,8 +117,8 @@ export function UploadCourseMaterialWizard({
     setFileError(null)
     setFormatLabel(null)
     setTitle("")
-    setCourseId(null)
-    setUniversityId(null)
+    setCourseId(initialCourseId ?? null)
+    setUniversityId(resolvedUnivId)
     setCourseMaterialType("other")
     setAcademicPeriod(
       academicPeriodOptions()[0]?.value ?? "2026/2027 semester 1"
