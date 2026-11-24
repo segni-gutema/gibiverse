@@ -10,6 +10,9 @@ import {
   ArrowRight,
   SlidersHorizontal,
   RotateCcw,
+  GraduationCap,
+  BookOpen,
+  ArrowUpDown,
 } from "lucide-react"
 import { cn } from "@gibiverse/ui/lib/utils"
 import { Button } from "@gibiverse/ui/components/button"
@@ -37,7 +40,7 @@ import {
   type CourseSortOption,
 } from "./presentation"
 
-const ALL_OPTION = "__all__"
+const ALL_OPTION = "all"
 
 export function CourseDirectoryClient({
   universities = [],
@@ -124,47 +127,81 @@ export function CourseDirectoryClient({
     setSortBy("code-asc")
   }
 
+  const selectedUniversityName =
+    selectedUniversityId !== ALL_OPTION
+      ? universities.find((u) => u.id === selectedUniversityId)?.name ?? null
+      : null
+
+  const selectedDepartmentName =
+    selectedDepartmentId !== ALL_OPTION
+      ? departments.find((d) => d.id === selectedDepartmentId)?.name ?? null
+      : null
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Filters & Search Toolbar */}
+      {/* Filters & Search Toolbar with Explicit Labels */}
       <section
-        className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 shadow-xs"
+        className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 shadow-xs sm:p-5"
         aria-label="Course Filters"
       >
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search input */}
-          <div className="relative min-w-[240px] flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search courses by code or name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-8"
-              data-testid="course-search-input"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Clear search"
-              >
-                <X className="size-4" />
-              </button>
-            ) : null}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
+          {/* Search Input with Clear Label */}
+          <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-4">
+            <label
+              htmlFor="course-search-input"
+              className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80"
+            >
+              <Search className="size-3.5 text-primary" />
+              <span>Search Course</span>
+            </label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="course-search-input"
+                type="text"
+                placeholder="Search by code (e.g. CS101) or name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-8"
+                data-testid="course-search-input"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="size-4" />
+                </button>
+              ) : null}
+            </div>
           </div>
 
-          {/* University dropdown */}
-          <div className="w-full sm:w-56">
+          {/* University Picker with Clear Label */}
+          <div className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-3">
+            <label
+              htmlFor="university-select"
+              className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80"
+            >
+              <GraduationCap className="size-3.5 text-primary" />
+              <span>University</span>
+            </label>
             <Select
               value={selectedUniversityId}
               onValueChange={(val) =>
                 handleUniversityChange(val ?? ALL_OPTION)
               }
             >
-              <SelectTrigger className="w-full" data-testid="university-select">
-                <SelectValue placeholder="All Universities" />
+              <SelectTrigger
+                id="university-select"
+                className="w-full"
+                data-testid="university-select"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <GraduationCap className="size-3.5 shrink-0 text-muted-foreground/70" />
+                  <SelectValue placeholder="All Universities" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -179,16 +216,35 @@ export function CourseDirectoryClient({
             </Select>
           </div>
 
-          {/* Cascading Department dropdown */}
-          <div className="w-full sm:w-56">
+          {/* Cascading Department Picker with Clear Label */}
+          <div className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-3">
+            <label
+              htmlFor="department-select"
+              className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80"
+            >
+              <BookOpen className="size-3.5 text-primary" />
+              <span>Department</span>
+              {selectedUniversityName ? (
+                <span className="text-[10px] font-normal text-muted-foreground">
+                  (filtered)
+                </span>
+              ) : null}
+            </label>
             <Select
               value={selectedDepartmentId}
               onValueChange={(val) =>
                 setSelectedDepartmentId(val ?? ALL_OPTION)
               }
             >
-              <SelectTrigger className="w-full" data-testid="department-select">
-                <SelectValue placeholder="All Departments" />
+              <SelectTrigger
+                id="department-select"
+                className="w-full"
+                data-testid="department-select"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <BookOpen className="size-3.5 shrink-0 text-muted-foreground/70" />
+                  <SelectValue placeholder="All Departments" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -203,16 +259,43 @@ export function CourseDirectoryClient({
             </Select>
           </div>
 
-          {/* Sort dropdown */}
-          <div className="w-full sm:w-48">
+          {/* Sort By Dropdown with Clear Label */}
+          <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-2">
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="sort-select"
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80"
+              >
+                <ArrowUpDown className="size-3.5 text-primary" />
+                <span>Sort By</span>
+              </label>
+              {hasActiveFilters ? (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+                  data-testid="reset-filters-button"
+                >
+                  <RotateCcw className="size-3" />
+                  <span>Reset</span>
+                </button>
+              ) : null}
+            </div>
             <Select
               value={sortBy}
               onValueChange={(val) =>
                 setSortBy((val as CourseSortOption) ?? "code-asc")
               }
             >
-              <SelectTrigger className="w-full" data-testid="sort-select">
-                <SelectValue placeholder="Sort by" />
+              <SelectTrigger
+                id="sort-select"
+                className="w-full"
+                data-testid="sort-select"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground/70" />
+                  <SelectValue placeholder="Sort by" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
@@ -225,39 +308,85 @@ export function CourseDirectoryClient({
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {/* Reset filters button */}
+        {/* Results Info & Active Filter Badges */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <span>
+              Showing{" "}
+              <strong className="font-semibold text-foreground">
+                {filteredCourses.length}
+              </strong>{" "}
+              {filteredCourses.length === 1 ? "course" : "courses"}
+            </span>
+
+            {/* Active Filter Tags */}
+            {selectedUniversityName ? (
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-1 text-[11px] font-normal"
+              >
+                <GraduationCap className="size-3 text-primary" />
+                <span>Uni: {selectedUniversityName}</span>
+                <button
+                  type="button"
+                  onClick={() => handleUniversityChange(ALL_OPTION)}
+                  className="ml-0.5 rounded hover:text-foreground"
+                  aria-label="Remove university filter"
+                >
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            ) : null}
+
+            {selectedDepartmentName ? (
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-1 text-[11px] font-normal"
+              >
+                <BookOpen className="size-3 text-primary" />
+                <span>Dept: {selectedDepartmentName}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDepartmentId(ALL_OPTION)}
+                  className="ml-0.5 rounded hover:text-foreground"
+                  aria-label="Remove department filter"
+                >
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            ) : null}
+
+            {searchQuery.trim() ? (
+              <Badge
+                variant="secondary"
+                className="flex items-center gap-1 text-[11px] font-normal"
+              >
+                <Search className="size-3 text-primary" />
+                <span>Search: &ldquo;{searchQuery.trim()}&rdquo;</span>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="ml-0.5 rounded hover:text-foreground"
+                  aria-label="Remove search filter"
+                >
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            ) : null}
+          </div>
+
           {hasActiveFilters ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleResetFilters}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-              data-testid="reset-filters-button"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
             >
-              <RotateCcw className="size-3.5" />
-              <span>Reset</span>
+              <RotateCcw className="mr-1 size-3" />
+              Clear all
             </Button>
-          ) : null}
-        </div>
-
-        {/* Results count info */}
-        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-          <span>
-            Showing{" "}
-            <strong className="font-semibold text-foreground">
-              {filteredCourses.length}
-            </strong>{" "}
-            {filteredCourses.length === 1 ? "course" : "courses"}
-          </span>
-          {selectedUniversityId !== ALL_OPTION ? (
-            <span className="truncate">
-              University:{" "}
-              <strong className="text-foreground">
-                {universities.find((u) => u.id === selectedUniversityId)
-                  ?.name ?? selectedUniversityId}
-              </strong>
-            </span>
           ) : null}
         </div>
       </section>

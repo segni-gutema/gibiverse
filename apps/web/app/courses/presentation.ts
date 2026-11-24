@@ -115,12 +115,16 @@ export function groupCoursesByDepartment(
   }))
 }
 
+function isAllOrEmpty(val?: string | null): boolean {
+  return !val || val === "all" || val === "__all__"
+}
+
 /** Scopes department list to selected university (or all if none/all specified). */
 export function getAvailableDepartments(
   departments: Department[],
   universityId?: string | null
 ): Department[] {
-  if (!universityId || universityId === "__all__") {
+  if (isAllOrEmpty(universityId)) {
     return departments
   }
   return departments.filter((dept) => dept.universityId === universityId)
@@ -132,7 +136,7 @@ export function isDepartmentCompatibleWithUniversity(
   departmentId: string,
   universityId: string
 ): boolean {
-  if (!universityId || universityId === "__all__") return true
+  if (isAllOrEmpty(universityId)) return true
   const dept = departments.find((d) => d.id === departmentId)
   return dept ? dept.universityId === universityId : false
 }
@@ -188,20 +192,12 @@ export function filterPrototypeCourses(
 
   const filtered = courses.filter((course) => {
     // University filter
-    if (
-      universityId &&
-      universityId !== "__all__" &&
-      course.universityId !== universityId
-    ) {
+    if (!isAllOrEmpty(universityId) && course.universityId !== universityId) {
       return false
     }
 
     // Department filter
-    if (
-      departmentId &&
-      departmentId !== "__all__" &&
-      course.departmentId !== departmentId
-    ) {
+    if (!isAllOrEmpty(departmentId) && course.departmentId !== departmentId) {
       return false
     }
 
