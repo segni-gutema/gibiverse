@@ -7,7 +7,7 @@ import {
 } from "../src/types/search.js"
 
 test("SEARCH_TYPES contains expected domain search categories", () => {
-  assert.deepEqual(SEARCH_TYPES, ["all", "resources", "questions"])
+  assert.deepEqual(SEARCH_TYPES, ["all", "resources", "questions", "courses"])
 })
 
 test("searchTypeSchema validates valid search types and rejects invalid strings", () => {
@@ -66,4 +66,21 @@ test("searchQuerySchema parses query parameters and provides default values", ()
     type: "invalid",
   })
   assert.equal(invalidTypeParsed.success, false)
+
+  // Valid tab filters are preserved and invalid enum filters are rejected
+  const courseFilterParsed = searchQuerySchema.safeParse({
+    q: "cs",
+    type: "courses",
+    universityId: "u1",
+    departmentId: "d1",
+    sort: "qa-desc",
+  })
+  assert.equal(courseFilterParsed.success, true)
+
+  const invalidSortParsed = searchQuerySchema.safeParse({
+    q: "cs",
+    type: "courses",
+    sort: "bogus",
+  })
+  assert.equal(invalidSortParsed.success, false)
 })

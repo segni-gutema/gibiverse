@@ -1,18 +1,24 @@
-import type { SearchType } from "@gibiverse/shared/types"
+import type { SearchType, SearchSort, CourseMaterialType } from "@gibiverse/shared/types"
 
-export type { SearchType }
+export type { SearchType, SearchSort }
 export type SearchTab = SearchType
+
+export const ALL_TAB_PREVIEW_LIMIT = 6
 
 export type SearchResultResource = {
   id: string
   title: string
   resourceType: string
+  courseMaterialType?: string
   academicPeriod: string
   createdAt: string
   courseId: string
   courseCode: string
   courseName: string
   departmentId: string
+  universityId?: string
+  universityName?: string
+  thumbnailPath?: string | null
 }
 
 export type SearchResultQuestion = {
@@ -23,16 +29,32 @@ export type SearchResultQuestion = {
   courseId: string
   courseCode: string
   courseName: string
+  universityId?: string
+  universityName?: string
   studentId: string
   studentName: string
   voteScore: number
   answerCount: number
+  userVote?: number | null
+}
+
+export type SearchResultCourse = {
+  id: string
+  name: string
+  code: string
+  universityId: string
+  universityName: string
+  departmentId: string
+  departmentName: string
+  materialsCount: number
+  questionsCount: number
 }
 
 export type SearchCounts = {
   all: number
   resources: number
   questions: number
+  courses: number
 }
 
 export type SearchResponse = {
@@ -41,19 +63,52 @@ export type SearchResponse = {
   counts: SearchCounts
   resources: SearchResultResource[]
   questions: SearchResultQuestion[]
+  courses: SearchResultCourse[]
+}
+
+export type SearchFilterParams = {
+  universityId?: string | null
+  departmentId?: string | null
+  courseId?: string | null
+  courseMaterialType?: CourseMaterialType | null
+  sort?: SearchSort | null
 }
 
 export function emptySearchResponse(type: SearchType = "all"): SearchResponse {
   return {
     query: "",
     type,
-    counts: { all: 0, resources: 0, questions: 0 },
+    counts: { all: 0, resources: 0, questions: 0, courses: 0 },
     resources: [],
     questions: [],
+    courses: [],
   }
 }
 
-export function buildSearchQuery(query: string, type?: SearchType): string {
+function appendSearchParams(
+  params: URLSearchParams,
+  type?: SearchType,
+  filters?: SearchFilterParams
+) {
+  if (type && type !== "all") {
+    params.set("type", type)
+  }
+  if (filters?.universityId) params.set("universityId", filters.universityId)
+  if (filters?.departmentId) params.set("departmentId", filters.departmentId)
+  if (filters?.courseId) params.set("courseId", filters.courseId)
+  if (filters?.courseMaterialType) {
+    params.set("courseMaterialType", filters.courseMaterialType)
+  }
+  if (filters?.sort) {
+    params.set("sort", filters.sort)
+  }
+}
+
+export function buildSearchQuery(
+  query: string,
+  type?: SearchType,
+  filters?: SearchFilterParams
+): string {
   const trimmed = query.trim()
   if (!trimmed) {
     return "/api/search"
@@ -61,38 +116,63 @@ export function buildSearchQuery(query: string, type?: SearchType): string {
 
   const params = new URLSearchParams()
   params.set("q", trimmed)
-  if (type && type !== "all") {
-    params.set("type", type)
-  }
+  appendSearchParams(params, type, filters)
 
   return `/api/search?${params.toString()}`
 }
 
-export function buildSearchPageUrl(query: string, type?: SearchType): string {
+export function buildSearchPageUrl(
+  query: string,
+  type?: SearchType,
+  filters?: SearchFilterParams
+): string {
   const trimmed = query.trim()
-  if (!trimmed) {
-    return type && type !== "all" ? `/search?type=${type}` : "/search"
-  }
-
   const params = new URLSearchParams()
-  params.set("q", trimmed)
-  if (type && type !== "all") {
-    params.set("type", type)
-  }
 
-  return `/search?${params.toString()}`
+  if (trimmed) {
+    params.set("q", trimmed)
+  }
+  appendSearchParams(params, type, filters)
+
+  const qs = params.toString()
+  return qs ? `/search?${qs}` : "/search"
 }
 
 export function getSearchEmptyState(
   query: string,
-  type: SearchType
+  type: SearchType,
+  hasActiveFilters = false
 ): { title: string; description: string } {
   const trimmed = query.trim()
   if (!trimmed) {
     return {
       title: "Search Gibiverse",
       description:
-        "Find course materials and questions by keyword, topic, or course code.",
+        "Find course materials, questions, and courses by keyword, topic, or course code.",
+    }
+  }
+
+  if (hasActiveFilters) {
+    if (type === "resources") {
+      return {
+        title: "No course materials match these filters",
+        description:
+          "Try clearing or adjusting the course material type, university, or course filters.",
+      }
+    }
+    if (type === "questions") {
+      return {
+        title: "No questions match these filters",
+        description:
+          "Try clearing or adjusting the university or course filters.",
+      }
+    }
+    if (type === "courses") {
+      return {
+        title: "No courses match these filters",
+        description:
+          "Try resetting the filters or choosing another university or department.",
+      }
     }
   }
 
@@ -107,6 +187,13 @@ export function getSearchEmptyState(
     return {
       title: "No questions found",
       description: `We couldn't find any questions matching "${trimmed}". Try checking for typos or searching for a course code.`,
+    }
+  }
+
+  if (type === "courses") {
+    return {
+      title: "No courses found",
+      description: `We couldn't find any courses matching "${trimmed}". Try searching by course code (e.g. CS101) or title.`,
     }
   }
 
