@@ -845,27 +845,17 @@ export function SearchClient({
                 <>
                   {results.resources.length > 0 && (
                     <section aria-labelledby="resources-section-heading">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="size-5 text-primary" />
-                          <h2
-                            id="resources-section-heading"
-                            className="text-lg font-bold text-foreground"
-                          >
-                            Course Materials
-                          </h2>
-                          <Badge variant="secondary">
-                            {results.counts.resources}
-                          </Badge>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleTabChange("resources")}
-                          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      <div className="mb-4 flex items-center gap-2">
+                        <BookOpen className="size-5 text-primary" />
+                        <h2
+                          id="resources-section-heading"
+                          className="text-lg font-bold text-foreground"
                         >
-                          View all course materials
-                          <ArrowRight className="size-4" />
-                        </button>
+                          Course Materials
+                        </h2>
+                        <Badge variant="secondary">
+                          {results.counts.resources}
+                        </Badge>
                       </div>
                       <ResourceGrid
                         resources={results.resources.slice(
@@ -873,32 +863,35 @@ export function SearchClient({
                           ALL_TAB_PREVIEW_LIMIT
                         )}
                       />
+                      {results.counts.resources > ALL_TAB_PREVIEW_LIMIT && (
+                        <div className="mt-4 flex justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleTabChange("resources")}
+                            data-testid="view-more-resources"
+                          >
+                            View more
+                            <ArrowRight className="ml-1.5 size-4" />
+                          </Button>
+                        </div>
+                      )}
                     </section>
                   )}
 
                   {results.questions.length > 0 && (
                     <section aria-labelledby="questions-section-heading">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <MessageSquareQuote className="size-5 text-primary" />
-                          <h2
-                            id="questions-section-heading"
-                            className="text-lg font-bold text-foreground"
-                          >
-                            Questions
-                          </h2>
-                          <Badge variant="secondary">
-                            {results.counts.questions}
-                          </Badge>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleTabChange("questions")}
-                          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      <div className="mb-4 flex items-center gap-2">
+                        <MessageSquareQuote className="size-5 text-primary" />
+                        <h2
+                          id="questions-section-heading"
+                          className="text-lg font-bold text-foreground"
                         >
-                          View all questions
-                          <ArrowRight className="size-4" />
-                        </button>
+                          Questions
+                        </h2>
+                        <Badge variant="secondary">
+                          {results.counts.questions}
+                        </Badge>
                       </div>
                       <QuestionGrid
                         questions={results.questions.slice(
@@ -906,32 +899,35 @@ export function SearchClient({
                           ALL_TAB_PREVIEW_LIMIT
                         )}
                       />
+                      {results.counts.questions > ALL_TAB_PREVIEW_LIMIT && (
+                        <div className="mt-4 flex justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleTabChange("questions")}
+                            data-testid="view-more-questions"
+                          >
+                            View more
+                            <ArrowRight className="ml-1.5 size-4" />
+                          </Button>
+                        </div>
+                      )}
                     </section>
                   )}
 
                   {results.courses && results.courses.length > 0 && (
                     <section aria-labelledby="courses-section-heading">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="size-5 text-primary" />
-                          <h2
-                            id="courses-section-heading"
-                            className="text-lg font-bold text-foreground"
-                          >
-                            Courses
-                          </h2>
-                          <Badge variant="secondary">
-                            {results.counts.courses}
-                          </Badge>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleTabChange("courses")}
-                          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      <div className="mb-4 flex items-center gap-2">
+                        <GraduationCap className="size-5 text-primary" />
+                        <h2
+                          id="courses-section-heading"
+                          className="text-lg font-bold text-foreground"
                         >
-                          View all courses
-                          <ArrowRight className="size-4" />
-                        </button>
+                          Courses
+                        </h2>
+                        <Badge variant="secondary">
+                          {results.counts.courses}
+                        </Badge>
                       </div>
                       <CourseGrid
                         courses={results.courses.slice(
@@ -939,6 +935,19 @@ export function SearchClient({
                           ALL_TAB_PREVIEW_LIMIT
                         )}
                       />
+                      {results.counts.courses > ALL_TAB_PREVIEW_LIMIT && (
+                        <div className="mt-4 flex justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleTabChange("courses")}
+                            data-testid="view-more-courses"
+                          >
+                            View more
+                            <ArrowRight className="ml-1.5 size-4" />
+                          </Button>
+                        </div>
+                      )}
                     </section>
                   )}
                 </>
