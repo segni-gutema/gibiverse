@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { parseMarkdownToNodes, type MarkdownNode } from "@/lib/markdown"
+import { parseMarkdownToNodes } from "@/lib/markdown"
 
 function renderInlineText(text: string): React.ReactNode[] {
   // Regex tokens: inline code, bold, italic, links

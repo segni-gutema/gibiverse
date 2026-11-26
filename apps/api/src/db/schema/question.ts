@@ -1,5 +1,11 @@
 import { relations } from "drizzle-orm/_relations"
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
+import {
+  type AnyPgColumn,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core"
 import { course } from "./academic.js"
 import { user } from "./auth.js"
 
@@ -14,7 +20,7 @@ export const question = pgTable("question", {
     .notNull()
     .references(() => user.id),
   acceptedAnswerId: text("accepted_answer_id").references(
-    (): any => answer.id,
+    (): AnyPgColumn => answer.id,
     {
       onDelete: "set null",
     }

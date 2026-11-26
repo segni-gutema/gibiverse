@@ -2,7 +2,7 @@ import {
   formatAcademicPeriod,
   formatRelativeUploadDate,
 } from "@/lib/formatters"
-import type { CourseMaterialType, Semester } from "@gibiverse/shared/types"
+import type { CourseMaterialType } from "@gibiverse/shared/types"
 
 export { formatAcademicPeriod, formatRelativeUploadDate }
 

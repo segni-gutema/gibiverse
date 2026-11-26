@@ -2,11 +2,21 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["DATABASE_URL", "PORT"]
+      "env": ["DATABASE_URL", "PORT", "STORAGE_PROVIDER", "STORAGE_LOCAL_PATH"]
     },
     "dev": {
-      "env": ["DATABASE_URL", "PORT"],
-      "passThroughEnv": ["DATABASE_URL", "PORT"]
+      "env": ["DATABASE_URL", "PORT", "STORAGE_PROVIDER", "STORAGE_LOCAL_PATH"],
+      "passThroughEnv": [
+        "DATABASE_URL",
+        "PORT",
+        "PGHOST",
+        "PGPORT",
+        "PGUSER",
+        "PGPASSWORD",
+        "PGDATABASE",
+        "STORAGE_PROVIDER",
+        "STORAGE_LOCAL_PATH"
+      ]
     },
     "typecheck": {
       "env": ["DATABASE_URL"]
@@ -18,7 +28,9 @@
         "BETTER_AUTH_URL",
         "BETTER_AUTH_TRUSTED_ORIGINS",
         "GOOGLE_CLIENT_ID",
-        "GOOGLE_CLIENT_SECRET"
+        "GOOGLE_CLIENT_SECRET",
+        "STORAGE_PROVIDER",
+        "STORAGE_LOCAL_PATH"
       ],
       "passThroughEnv": [
         "DATABASE_URL",
@@ -26,7 +38,14 @@
         "BETTER_AUTH_URL",
         "BETTER_AUTH_TRUSTED_ORIGINS",
         "GOOGLE_CLIENT_ID",
-        "GOOGLE_CLIENT_SECRET"
+        "GOOGLE_CLIENT_SECRET",
+        "PGHOST",
+        "PGPORT",
+        "PGUSER",
+        "PGPASSWORD",
+        "PGDATABASE",
+        "STORAGE_PROVIDER",
+        "STORAGE_LOCAL_PATH"
       ]
     }
   }

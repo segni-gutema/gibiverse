@@ -30,17 +30,13 @@ export function AskQuestionButton({
 }: AskQuestionButtonProps) {
   const router = useRouter()
   const { data: session, isPending } = useSession()
-  const [open, setOpen] = React.useState(false)
-  const didAutoOpen = React.useRef(false)
+  const [userOpen, setUserOpen] = React.useState<boolean | null>(null)
+  const open = userOpen ?? (autoOpen && !isPending && Boolean(session?.user))
 
   React.useEffect(() => {
-    if (!autoOpen || didAutoOpen.current || isPending) return
-    if (!session?.user) {
+    if (autoOpen && !isPending && !session?.user) {
       router.replace(getAskSignInHref(ASK_QUESTION_PATH))
-      return
     }
-    didAutoOpen.current = true
-    setOpen(true)
   }, [autoOpen, isPending, router, session?.user])
 
   function handleClick() {
@@ -49,7 +45,7 @@ export function AskQuestionButton({
       router.push(getAskSignInHref(ASK_QUESTION_PATH))
       return
     }
-    setOpen(true)
+    setUserOpen(true)
   }
 
   return (
@@ -60,7 +56,7 @@ export function AskQuestionButton({
       </Button>
       <AskQuestionDialog
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={setUserOpen}
         universities={universities}
         courses={courses}
         initialCourseId={initialCourseId}

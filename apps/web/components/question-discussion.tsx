@@ -2,13 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import {
-  ArrowLeft,
-  Check,
-  CheckCircle2,
-  MessageCircle,
-  ThumbsUp,
-} from "lucide-react"
+import { ArrowLeft, Check, CheckCircle2, MessageCircle } from "lucide-react"
 import { Badge } from "@gibiverse/ui/components/badge"
 import { Button } from "@gibiverse/ui/components/button"
 import { AnswerComposer } from "./answer-composer"

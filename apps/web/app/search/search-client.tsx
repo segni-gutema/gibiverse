@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -176,11 +177,21 @@ export function SearchClient({
   })
 
   // Sync state if initial props change
-  React.useEffect(() => {
+  const [prevInitial, setPrevInitial] = React.useState({
+    initialQuery,
+    initialType,
+    initialData,
+  })
+  if (
+    prevInitial.initialQuery !== initialQuery ||
+    prevInitial.initialType !== initialType ||
+    prevInitial.initialData !== initialData
+  ) {
+    setPrevInitial({ initialQuery, initialType, initialData })
     setQueryInput(initialQuery)
     setActiveTab(initialType)
     setResults(initialData)
-  }, [initialQuery, initialType, initialData])
+  }
 
   const resetAllFilterStates = () => {
     setMaterialFilters({
@@ -1121,11 +1132,12 @@ function ResourceGrid({ resources }: { resources: SearchResultResource[] }) {
               {/* Thumbnail / Icon area matching /course-materials */}
               <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-muted/50">
                 {item.thumbnailPath ? (
-                  <img
+                  <Image
                     src={`/api/course-materials/${item.id}/thumbnail`}
                     alt=""
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
+                    fill
+                    unoptimized
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center transition-transform duration-300 group-hover:scale-105">

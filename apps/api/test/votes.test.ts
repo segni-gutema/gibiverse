@@ -1,6 +1,6 @@
 import test, { after, before } from "node:test"
 import assert from "node:assert/strict"
-import { eq, and } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
 import { university, department, course } from "../src/db/schema/academic.js"
@@ -16,7 +16,6 @@ const courseCode = `VOTE${String(suffix).slice(-3)}`
 let studentACookie: string
 let studentAId: string
 let studentBCookie: string
-let studentBId: string
 let testQuestionId: string
 let testAnswerId: string
 
@@ -80,7 +79,6 @@ before(async () => {
     })
   ).json()) as { user?: { id: string } }
   assert.ok(sessionB.user?.id)
-  studentBId = sessionB.user.id
 
   // Create question by Student A
   const qRes = await app.request("/api/questions", {
@@ -500,10 +498,15 @@ test("database enforces unique constraint on (userId, targetType, targetId)", as
         value: -1,
       })
     },
-    (err: any) => {
+    (err: unknown) => {
       // Postgres error code 23505 is unique_violation, Drizzle wraps in DrizzleQueryError
-      const code = err?.code || err?.cause?.code
-      const msg = `${err?.message || ""} ${err?.cause?.message || ""}`
+      const pgErr = err as {
+        code?: string
+        message?: string
+        cause?: { code?: string; message?: string }
+      }
+      const code = pgErr?.code || pgErr?.cause?.code
+      const msg = `${pgErr?.message || ""} ${pgErr?.cause?.message || ""}`
       return code === "23505" || /unique/i.test(msg)
     }
   )

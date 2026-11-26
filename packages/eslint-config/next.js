@@ -42,7 +42,7 @@ export const nextJsConfig = [
     // when the render target is a Next.js Link (which renders an <a>).
     rules: {
       "no-restricted-syntax": [
-        "warn",
+        "error",
         {
           selector:
             "JSXOpeningElement[name.name='Button']:has(JSXAttribute[name.name='render']):not(:has(JSXAttribute[name.name='nativeButton']))",

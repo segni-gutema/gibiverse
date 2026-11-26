@@ -16,7 +16,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 })
 
 // Mount chained API routes for full RPC type inference
-const routes = app
+export const routes = app
   .route("/api", academic)
   .route("/api/course-materials", courseMaterials)
   .route("/api/questions", questions)

@@ -40,38 +40,38 @@ export function CoursePicker({
   disabled = false,
   allowClear = false,
 }: CoursePickerProps) {
-  const [universityId, setUniversityId] = React.useState<string | null>(
-    controlledUniversityId ?? null
-  )
-  const [courseId, setCourseId] = React.useState<string | null>(
-    controlledCourseId ?? null
-  )
+  const [uncontrolledUniversityId, setUncontrolledUniversityId] =
+    React.useState<string | null>(null)
+  const [uncontrolledCourseId, setUncontrolledCourseId] = React.useState<
+    string | null
+  >(null)
 
-  React.useEffect(() => {
-    if (controlledUniversityId !== undefined) {
-      setUniversityId(controlledUniversityId)
-    }
-  }, [controlledUniversityId])
-
-  React.useEffect(() => {
-    if (controlledCourseId !== undefined) {
-      setCourseId(controlledCourseId)
-    }
-  }, [controlledCourseId])
+  const universityId =
+    controlledUniversityId !== undefined
+      ? controlledUniversityId
+      : uncontrolledUniversityId
+  const courseId =
+    controlledCourseId !== undefined ? controlledCourseId : uncontrolledCourseId
 
   const filteredCourses = filterCoursesByUniversity(courses, universityId)
 
   const handleUniversityChange = (value: string | null) => {
     const next = !value || value === ALL_VALUE ? null : value
-    setUniversityId(next)
-    setCourseId(null)
+    if (controlledUniversityId === undefined) {
+      setUncontrolledUniversityId(next)
+    }
+    if (controlledCourseId === undefined) {
+      setUncontrolledCourseId(null)
+    }
     onUniversityChange?.(next)
     onCourseChange?.(null)
   }
 
   const handleCourseChange = (value: string | null) => {
     const next = !value || value === ALL_VALUE ? null : value
-    setCourseId(next)
+    if (controlledCourseId === undefined) {
+      setUncontrolledCourseId(next)
+    }
     onCourseChange?.(next)
   }
 

@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Geist_Mono, Inter } from "next/font/google"
 
 import "@gibiverse/ui/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"

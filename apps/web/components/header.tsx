@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
@@ -63,12 +64,16 @@ export function StudentAvatar({ student, size = "sm" }: StudentAvatarProps) {
   const initials = getAvatarInitials(student)
 
   const sizeClass = size === "md" ? "size-8" : "size-7"
+  const sizePx = size === "md" ? 32 : 28
 
   if (student.image) {
     return (
-      <img
+      <Image
         src={student.image}
         alt={student.name || "Student Avatar"}
+        width={sizePx}
+        height={sizePx}
+        unoptimized
         className={`${sizeClass} rounded-full object-cover`}
       />
     )
@@ -92,14 +97,15 @@ function HeaderSearchBar({
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [query, setQuery] = React.useState("")
-
-  React.useEffect(() => {
-    const q = searchParams.get("q")
-    if (q !== null) {
-      setQuery(q)
+  const qParam = searchParams.get("q")
+  const [query, setQuery] = React.useState(qParam ?? "")
+  const [prevQParam, setPrevQParam] = React.useState(qParam)
+  if (qParam !== prevQParam) {
+    setPrevQParam(qParam)
+    if (qParam !== null) {
+      setQuery(qParam)
     }
-  }, [searchParams])
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -160,10 +166,12 @@ export function Header() {
   }, [])
 
   // Close menus when route changes
-  React.useEffect(() => {
+  const [prevPathname, setPrevPathname] = React.useState(pathname)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
     setMobileMenuOpen(false)
     setAvatarMenuOpen(false)
-  }, [pathname])
+  }
 
   const handleSignOut = async () => {
     await signOut()

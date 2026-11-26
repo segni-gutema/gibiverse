@@ -128,7 +128,7 @@ test("calculateVoteTransition computes pure transition states correctly", () => 
 test("voting.cast() validates input parameters", async () => {
   // Missing user
   const res1 = await voting.cast({
-    user: null as any,
+    user: null as never,
     targetType: "question",
     targetId: testQuestionId,
     value: 1,
