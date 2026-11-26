@@ -6,6 +6,11 @@ import { cn } from "@gibiverse/ui/lib/utils"
 import { Button } from "@gibiverse/ui/components/button"
 import { Label } from "@gibiverse/ui/components/label"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@gibiverse/ui/components/popover"
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -38,10 +43,6 @@ export function CourseFilterDropdown({
   onFilterChange,
   className,
 }: CourseFilterDropdownProps) {
-  const [dropdownOpen, setDropdownOpen] = React.useState(false)
-  const dropdownRef = React.useRef<HTMLDivElement>(null)
-  const buttonRef = React.useRef<HTMLButtonElement>(null)
-
   const filteredCourses = filterCoursesByUniversity(
     courses,
     selectedUniversityId
@@ -61,35 +62,6 @@ export function CourseFilterDropdown({
     courseButtonParts.length > 0
       ? courseButtonParts.join(" · ")
       : "Filter by course"
-
-  // Close dropdown on outside click (ignore Base UI Select portals)
-  React.useEffect(() => {
-    if (!dropdownOpen) return
-    function handleClick(e: MouseEvent) {
-      const target = e.target as HTMLElement
-      if (
-        dropdownRef.current?.contains(target) ||
-        buttonRef.current?.contains(target) ||
-        target.closest("[data-slot='select-content']") ||
-        target.closest("[data-slot='select-item']")
-      ) {
-        return
-      }
-      setDropdownOpen(false)
-    }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [dropdownOpen])
-
-  // Close on Escape
-  React.useEffect(() => {
-    if (!dropdownOpen) return
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setDropdownOpen(false)
-    }
-    document.addEventListener("keydown", handleKey)
-    return () => document.removeEventListener("keydown", handleKey)
-  }, [dropdownOpen])
 
   const handleUniversityChange = (value: string | null) => {
     const nextUniId = !value || value === ALL_OPTION ? null : value
@@ -117,45 +89,49 @@ export function CourseFilterDropdown({
 
   return (
     <div className={cn("relative inline-block", className)}>
-      <Button
-        ref={buttonRef}
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setDropdownOpen((prev) => !prev)}
-        className={cn(
-          "gap-1.5",
-          hasCourseFilter &&
-            "border-emerald-600/30 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
-        )}
-        data-testid="filter-by-course-button"
-      >
-        {courseButtonLabel}
-        {hasCourseFilter ? (
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={handleClear}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                handleClear(e)
-              }
-            }}
-            className="ml-0.5 flex size-4 items-center justify-center rounded-full hover:bg-muted-foreground/20"
-            aria-label="Clear course filter"
-          >
-            <X className="size-3" />
-          </span>
-        ) : (
-          <ChevronDown className="size-3.5" />
-        )}
-      </Button>
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={cn(
+                "gap-1.5",
+                hasCourseFilter &&
+                  "border-emerald-600/30 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+              )}
+              data-testid="filter-by-course-button"
+            />
+          }
+        >
+          {courseButtonLabel}
+          {hasCourseFilter ? (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={handleClear}
+              onPointerDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  handleClear(e)
+                }
+              }}
+              className="ml-0.5 flex size-4 items-center justify-center rounded-full hover:bg-muted-foreground/20"
+              aria-label="Clear course filter"
+            >
+              <X className="size-3" />
+            </span>
+          ) : (
+            <ChevronDown className="size-3.5" />
+          )}
+        </PopoverTrigger>
 
-      {dropdownOpen ? (
-        <div
-          ref={dropdownRef}
-          className="absolute top-full left-0 z-40 mt-1.5 w-72 rounded-lg border border-border bg-background p-3 shadow-lg"
+        <PopoverContent
+          align="start"
+          sideOffset={6}
+          className="w-72 p-3"
           data-testid="course-filter-dropdown-popover"
         >
           <div className="flex flex-col gap-3">
@@ -224,8 +200,8 @@ export function CourseFilterDropdown({
               </Select>
             </div>
           </div>
-        </div>
-      ) : null}
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }

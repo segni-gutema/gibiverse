@@ -3,14 +3,17 @@ import assert from "node:assert/strict"
 import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
-import { university, department, course } from "../src/db/schema/academic.js"
 import { question, answer } from "../src/db/schema/question.js"
+import {
+  createAuthenticatedStudent,
+  createTestScope,
+  seedAcademicHierarchy,
+  type SeededAcademicHierarchy,
+} from "./fixtures.js"
 
-const suffix = Date.now()
-const uniId = `uni_ans_${suffix}`
-const deptId = `dept_ans_${suffix}`
-const courseId = `course_ans_${suffix}`
-const courseCode = `ANS${String(suffix).slice(-3)}`
+const scope = createTestScope("ans")
+let academic: SeededAcademicHierarchy
+let courseId: string
 
 let authorCookie: string
 let authorId: string
@@ -20,66 +23,32 @@ let testQuestionId: string
 const createdQuestionIds: string[] = []
 
 before(async () => {
-  await db.insert(university).values({
-    id: uniId,
-    name: `Answer Uni ${suffix}`,
+  academic = await seedAcademicHierarchy({
+    scope,
+    universityName: `Answer Uni ${scope.suffix}`,
+    departmentName: `Answer Dept ${scope.suffix}`,
+    courseName: "Answer Course",
+    courseCodeTag: "ANS",
   })
-  await db.insert(department).values({
-    id: deptId,
-    name: `Answer Dept ${suffix}`,
-    universityId: uniId,
-  })
-  await db.insert(course).values({
-    id: courseId,
-    name: "Answer Course",
-    code: courseCode,
-    universityId: uniId,
-    departmentId: deptId,
-  })
+  courseId = academic.courseId
 
-  // Create question author
-  const authorRes = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: "Author Student",
-      email: `author_${suffix}@university.edu`,
-      password: "AuthorPassword123!",
-    }),
+  const author = await createAuthenticatedStudent({
+    scope,
+    label: "author",
+    name: "Author Student",
+    password: "AuthorPassword123!",
   })
-  assert.strictEqual(authorRes.status, 200)
-  const authorCookieHeader = authorRes.headers.get("set-cookie")
-  assert.ok(authorCookieHeader)
-  authorCookie = authorCookieHeader.split(";")[0]!
-  const authorSession = (await (
-    await app.request("/api/auth/get-session", {
-      headers: { cookie: authorCookie },
-    })
-  ).json()) as { user?: { id: string } }
-  assert.ok(authorSession.user?.id)
-  authorId = authorSession.user.id
+  authorCookie = author.cookie
+  authorId = author.userId
 
-  // Create second student (respondent)
-  const respRes = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: "Respondent Student",
-      email: `respondent_${suffix}@university.edu`,
-      password: "RespondentPassword123!",
-    }),
+  const respondent = await createAuthenticatedStudent({
+    scope,
+    label: "respondent",
+    name: "Respondent Student",
+    password: "RespondentPassword123!",
   })
-  assert.strictEqual(respRes.status, 200)
-  const respCookieHeader = respRes.headers.get("set-cookie")
-  assert.ok(respCookieHeader)
-  respondentCookie = respCookieHeader.split(";")[0]!
-  const respSession = (await (
-    await app.request("/api/auth/get-session", {
-      headers: { cookie: respondentCookie },
-    })
-  ).json()) as { user?: { id: string } }
-  assert.ok(respSession.user?.id)
-  respondentId = respSession.user.id
+  respondentCookie = respondent.cookie
+  respondentId = respondent.userId
 
   // Post a test question by author
   const qRes = await app.request("/api/questions", {
@@ -104,9 +73,7 @@ after(async () => {
   for (const id of createdQuestionIds) {
     await db.delete(question).where(eq(question.id, id))
   }
-  await db.delete(course).where(eq(course.id, courseId))
-  await db.delete(department).where(eq(department.id, deptId))
-  await db.delete(university).where(eq(university.id, uniId))
+  await academic.cleanup()
 })
 
 test("POST /api/questions/:id/answers requires authentication", async () => {

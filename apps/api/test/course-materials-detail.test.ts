@@ -1,24 +1,26 @@
 import test, { after, before } from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, rm } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import path from "node:path"
 import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
-import { university, department, course } from "../src/db/schema/academic.js"
 import { courseMaterial } from "../src/db/schema/course-material.js"
+import {
+  createAuthenticatedStudent,
+  createTempStorageEnv,
+  createTestScope,
+  seedAcademicHierarchy,
+  type SeededAcademicHierarchy,
+  type TempStorageEnv,
+} from "./fixtures.js"
 
-const suffix = Date.now()
-const uniId = `uni_detail_${suffix}`
-const deptId = `dept_detail_${suffix}`
-const courseId = `course_detail_${suffix}`
-const courseCode = `DT${String(suffix).slice(-3)}`
+const scope = createTestScope("detail")
+let academic: SeededAcademicHierarchy
+let storageEnv: TempStorageEnv
+let uniId: string
+let courseId: string
+let courseCode: string
 const courseName = "Detail Course"
 
-let storageDir: string
-let previousStoragePath: string | undefined
-let previousStorageProvider: string | undefined
 let sessionCookie: string
 let studentId: string
 let studentName: string
@@ -27,54 +29,27 @@ const pdfBytes = Buffer.from("%PDF-1.4 detail-preview")
 const originalFileName = "CS Midterm 2024.pdf"
 
 before(async () => {
-  storageDir = await mkdtemp(path.join(tmpdir(), "gibiverse-cm-detail-"))
-  previousStoragePath = process.env.STORAGE_LOCAL_PATH
-  previousStorageProvider = process.env.STORAGE_PROVIDER
-  process.env.STORAGE_LOCAL_PATH = storageDir
-  process.env.STORAGE_PROVIDER = "local"
-
-  await db.insert(university).values({
-    id: uniId,
-    name: `Detail Uni ${suffix}`,
+  storageEnv = await createTempStorageEnv("gibiverse-cm-detail-")
+  academic = await seedAcademicHierarchy({
+    scope,
+    universityName: `Detail Uni ${scope.suffix}`,
+    departmentName: `Detail Dept ${scope.suffix}`,
+    courseName,
+    courseCodeTag: "DT",
   })
-  await db.insert(department).values({
-    id: deptId,
-    name: `Detail Dept ${suffix}`,
-    universityId: uniId,
-  })
-  await db.insert(course).values({
-    id: courseId,
-    name: courseName,
-    code: courseCode,
-    universityId: uniId,
-    departmentId: deptId,
-  })
+  uniId = academic.universityId
+  courseId = academic.courseId
+  courseCode = academic.courseCode
 
   studentName = "Detail Student"
-  const email = `detail_${suffix}@university.edu`
-  const password = "DetailPassword123!"
-  const signUpRes = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: studentName,
-      email,
-      password,
-    }),
+  const student = await createAuthenticatedStudent({
+    scope,
+    label: "detail",
+    name: studentName,
+    password: "DetailPassword123!",
   })
-  assert.strictEqual(signUpRes.status, 200)
-  const setCookie = signUpRes.headers.get("set-cookie")
-  assert.ok(setCookie)
-  sessionCookie = setCookie.split(";")[0]!
-
-  const sessionRes = await app.request("/api/auth/get-session", {
-    headers: { cookie: sessionCookie },
-  })
-  const sessionBody = (await sessionRes.json()) as {
-    user?: { id: string }
-  }
-  assert.ok(sessionBody.user?.id)
-  studentId = sessionBody.user.id
+  sessionCookie = student.cookie
+  studentId = student.userId
 
   const form = new FormData()
   form.set("title", "CS Midterm 2024")
@@ -104,16 +79,8 @@ after(async () => {
       .delete(courseMaterial)
       .where(eq(courseMaterial.id, courseMaterialId))
   }
-  await db.delete(course).where(eq(course.id, courseId))
-  await db.delete(department).where(eq(department.id, deptId))
-  await db.delete(university).where(eq(university.id, uniId))
-
-  if (previousStoragePath === undefined) delete process.env.STORAGE_LOCAL_PATH
-  else process.env.STORAGE_LOCAL_PATH = previousStoragePath
-  if (previousStorageProvider === undefined) delete process.env.STORAGE_PROVIDER
-  else process.env.STORAGE_PROVIDER = previousStorageProvider
-
-  await rm(storageDir, { recursive: true, force: true })
+  await academic.cleanup()
+  await storageEnv.cleanup()
 })
 
 test("GET /api/course-materials/:id returns course material detail metadata", async () => {

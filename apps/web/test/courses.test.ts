@@ -12,69 +12,11 @@ import {
   PROTOTYPE_COURSES,
   PROTOTYPE_UNIVERSITIES,
   PROTOTYPE_DEPARTMENTS,
-  type CourseCardData,
   type CourseSummary,
   type ScopedMaterialItem,
   type Department,
 } from "../app/courses/presentation.js"
-
-const SAMPLE_COURSES: CourseCardData[] = [
-  {
-    id: "c-cs101",
-    name: "Introduction to Computer Science",
-    code: "CS101",
-    universityId: "u-aau",
-    universityName: "Addis Ababa University",
-    departmentId: "d-cs",
-    departmentName: "Computer Science",
-    materialsCount: 15,
-    questionsCount: 22,
-  },
-  {
-    id: "c-cs201",
-    name: "Data Structures and Algorithms",
-    code: "CS201",
-    universityId: "u-aau",
-    universityName: "Addis Ababa University",
-    departmentId: "d-cs",
-    departmentName: "Computer Science",
-    materialsCount: 0, // Edge case: 0 materials
-    questionsCount: 8,
-  },
-  {
-    id: "c-math101",
-    name: "Calculus I",
-    code: "MATH101",
-    universityId: "u-aau",
-    universityName: "Addis Ababa University",
-    departmentId: "d-math",
-    departmentName: "Mathematics",
-    materialsCount: 9,
-    questionsCount: 0, // Edge case: 0 Q&As
-  },
-  {
-    id: "c-ast101",
-    name: "Introduction to Astronomy",
-    code: "AST101",
-    universityId: "u-aau",
-    universityName: "Addis Ababa University",
-    departmentId: "d-phys",
-    departmentName: "Physics",
-    materialsCount: 0, // Edge case: 0 materials and 0 Q&As
-    questionsCount: 0,
-  },
-  {
-    id: "c-se301",
-    name: "Software Architecture",
-    code: "SE301",
-    universityId: "u-astu",
-    universityName: "Adama Science and Technology University",
-    departmentId: "d-se",
-    departmentName: "Software Engineering",
-    materialsCount: 28,
-    questionsCount: 14,
-  },
-]
+import { SAMPLE_COURSE_CARDS as SAMPLE_COURSES } from "./fixtures.js"
 
 const SAMPLE_DEPARTMENTS: Department[] = [
   { id: "d-cs", name: "Computer Science", universityId: "u-aau" },

@@ -1,92 +1,53 @@
 import test, { after, before } from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, rm } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import path from "node:path"
 import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
-import { university, department, course } from "../src/db/schema/academic.js"
 import { courseMaterial } from "../src/db/schema/course-material.js"
+import {
+  createAuthenticatedStudent,
+  createTempStorageEnv,
+  createTestScope,
+  seedAcademicHierarchy,
+  type SeededAcademicHierarchy,
+  type TempStorageEnv,
+} from "./fixtures.js"
 
-const suffix = Date.now()
-const uniId = `uni_cm_${suffix}`
-const deptId = `dept_cm_${suffix}`
-const courseId = `course_cm_${suffix}`
-const courseCode = `CM${String(suffix).slice(-3)}`
-
-let storageDir: string
-let previousStoragePath: string | undefined
-let previousStorageProvider: string | undefined
+const scope = createTestScope("cm")
+let academic: SeededAcademicHierarchy
+let storageEnv: TempStorageEnv
+let courseId: string
 let sessionCookie: string
 let studentId: string
 const createdMaterialIds: string[] = []
 
 before(async () => {
-  storageDir = await mkdtemp(path.join(tmpdir(), "gibiverse-cm-upload-"))
-  previousStoragePath = process.env.STORAGE_LOCAL_PATH
-  previousStorageProvider = process.env.STORAGE_PROVIDER
-  process.env.STORAGE_LOCAL_PATH = storageDir
-  process.env.STORAGE_PROVIDER = "local"
+  storageEnv = await createTempStorageEnv("gibiverse-cm-upload-")
+  academic = await seedAcademicHierarchy({
+    scope,
+    universityName: `Course Material Uni ${scope.suffix}`,
+    departmentName: `Course Material Dept ${scope.suffix}`,
+    courseName: "Course Material Course",
+    courseCodeTag: "CM",
+  })
+  courseId = academic.courseId
 
-  await db.insert(university).values({
-    id: uniId,
-    name: `Course Material Uni ${suffix}`,
+  const student = await createAuthenticatedStudent({
+    scope,
+    label: "cm",
+    name: `Course Material Student ${scope.suffix}`,
+    password: "CourseMaterialPassword123!",
   })
-  await db.insert(department).values({
-    id: deptId,
-    name: `Course Material Dept ${suffix}`,
-    universityId: uniId,
-  })
-  await db.insert(course).values({
-    id: courseId,
-    name: "Course Material Course",
-    code: courseCode,
-    universityId: uniId,
-    departmentId: deptId,
-  })
-
-  const email = `cm_${suffix}@university.edu`
-  const password = "CourseMaterialPassword123!"
-  const signUpRes = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      email,
-      password,
-      name: `Course Material Student ${suffix}`,
-    }),
-  })
-  assert.strictEqual(signUpRes.status, 200)
-
-  const rawCookie = signUpRes.headers.get("set-cookie")
-  assert.ok(rawCookie)
-  sessionCookie = rawCookie.split(";")[0]!
-
-  const sessionRes = await app.request("/api/auth/get-session", {
-    headers: { cookie: sessionCookie },
-  })
-  assert.strictEqual(sessionRes.status, 200)
-  const sessionBody = (await sessionRes.json()) as {
-    user: { id: string }
-  }
-  studentId = sessionBody.user.id
+  sessionCookie = student.cookie
+  studentId = student.userId
 })
 
 after(async () => {
   for (const id of createdMaterialIds) {
     await db.delete(courseMaterial).where(eq(courseMaterial.id, id))
   }
-  await db.delete(course).where(eq(course.id, courseId))
-  await db.delete(department).where(eq(department.id, deptId))
-  await db.delete(university).where(eq(university.id, uniId))
-
-  if (previousStoragePath === undefined) delete process.env.STORAGE_LOCAL_PATH
-  else process.env.STORAGE_LOCAL_PATH = previousStoragePath
-  if (previousStorageProvider === undefined) delete process.env.STORAGE_PROVIDER
-  else process.env.STORAGE_PROVIDER = previousStorageProvider
-
-  await rm(storageDir, { recursive: true, force: true })
+  await academic.cleanup()
+  await storageEnv.cleanup()
 })
 
 test("POST /api/course-materials requires authentication", async () => {
