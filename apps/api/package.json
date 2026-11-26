@@ -9,13 +9,13 @@
     "./hc": "./src/hc.ts"
   },
   "scripts": {
-    "predev": "test -n \"$TURBO_HASH\" && test -f ../../packages/shared/dist/types/index.js || pnpm --filter @gibiverse/shared build",
+    "predev": "bash ../../scripts/ensure-shared-build.sh",
     "dev": "NODE_OPTIONS=\"--dns-result-order=ipv4first\" tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "pretest": "test -n \"$TURBO_HASH\" && test -f ../../packages/shared/dist/types/index.js || pnpm --filter @gibiverse/shared build",
+    "pretest": "bash ../../scripts/ensure-shared-build.sh",
     "test": "node --import tsx --test --test-concurrency=1 --test-force-exit test/**/*.test.ts",
     "test:local": "./scripts/test-local.sh",
     "typecheck": "tsc --noEmit",
