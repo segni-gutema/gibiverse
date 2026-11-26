@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-GitHub Issues on `Panda-SGH/gibiverse` (via `gh`). See `docs/agents/issue-tracker.md`.
+GitHub Issues on `segni-gutema/gibiverse` (via `gh`). See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
@@ -11,6 +11,14 @@ Default roles: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human
 ### Domain docs
 
 Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
+### Coding standards
+
+Base UI (`render` prop, not Radix `asChild`), `node --import tsx --test`, `gh`/git sandbox boundaries, and async waiting rules: see `CODING_STANDARDS.md`.
+
+### UI visual verification
+
+Verify rendered UI and prototype views in a headless browser via `browser_eval` (`next-devtools` MCP) before requesting human review. See `.agents/skills/prototype/UI.md` for UI prototypes.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
