@@ -107,7 +107,7 @@ export function CourseFilterDropdown({
     })
   }
 
-  const handleClear = (e: React.MouseEvent) => {
+  const handleClear = (e: React.SyntheticEvent) => {
     e.stopPropagation()
     onFilterChange({
       universityId: null,
@@ -139,7 +139,7 @@ export function CourseFilterDropdown({
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault()
-                handleClear(e as unknown as React.MouseEvent)
+                handleClear(e)
               }
             }}
             className="ml-0.5 flex size-4 items-center justify-center rounded-full hover:bg-muted-foreground/20"

@@ -1,7 +1,7 @@
 import { Geist_Mono, Inter } from "next/font/google"
 
 import "@gibiverse/ui/globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@gibiverse/ui/components/theme-provider"
 import { Header } from "@/components/header"
 import { cn } from "@gibiverse/ui/lib/utils"
 

@@ -17,13 +17,7 @@ export default async function CourseDetailsPage({
   let courses: Course[] = []
 
   try {
-    const courseRes = await (
-      client.api.courses as unknown as {
-        ":id": {
-          $get: (args: { param: { id: string } }) => Promise<Response>
-        }
-      }
-    )[":id"].$get({ param: { id } })
+    const courseRes = await client.api.courses[":id"].$get({ param: { id } })
 
     if (!courseRes.ok) {
       notFound()

@@ -96,11 +96,16 @@ export function CourseMaterialCatalogClient({
       })
       .then(async (res) => {
         if (!res.ok) throw new Error("Could not load course materials")
-        return res.json()
+        const data = await res.json()
+        if (!Array.isArray(data)) {
+          throw new Error("Could not load course materials")
+        }
+        return data
       })
       .then((next) => {
-        if (!cancelled)
-          setCourseMaterials(next as unknown as CatalogCourseMaterial[])
+        if (!cancelled) {
+          setCourseMaterials(next)
+        }
       })
       .catch(() => {
         if (!cancelled) {
