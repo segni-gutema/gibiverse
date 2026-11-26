@@ -77,8 +77,7 @@ export class LocalStorage implements StorageProvider {
 
     return {
       stream: webStream,
-      contentType:
-        this.contentTypes.get(key) ?? "application/octet-stream",
+      contentType: this.contentTypes.get(key) ?? "application/octet-stream",
       size: fileStat.size,
     }
   }

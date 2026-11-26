@@ -6,14 +6,22 @@ test("navItems does not contain redundant Home link because logo navigates to ho
   const hasHome = navItems.some(
     (item) => item.label.toLowerCase() === "home" || item.href === "/"
   )
-  assert.equal(hasHome, false, "Home navigation link must be removed from global navigation")
+  assert.equal(
+    hasHome,
+    false,
+    "Home navigation link must be removed from global navigation"
+  )
 })
 
 test("navItems does not contain redundant Search link because search bar exists in header", () => {
   const hasSearch = navItems.some(
     (item) => item.label.toLowerCase() === "search" || item.href === "/search"
   )
-  assert.equal(hasSearch, false, "Search navigation link must be removed from global navigation to prevent duplicate search controls")
+  assert.equal(
+    hasSearch,
+    false,
+    "Search navigation link must be removed from global navigation to prevent duplicate search controls"
+  )
 })
 
 test("navItems contains standard primary academic routes", () => {

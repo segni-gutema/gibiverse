@@ -18,10 +18,7 @@ test("courseMaterialPreviewUrl and courseMaterialDownloadUrl point at streaming 
 })
 
 test("resolvePreviewType maps MIME and extensions to preview modes", () => {
-  assert.strictEqual(
-    resolvePreviewType("notes.pdf", "application/pdf"),
-    "pdf"
-  )
+  assert.strictEqual(resolvePreviewType("notes.pdf", "application/pdf"), "pdf")
   assert.strictEqual(
     resolvePreviewType(
       "notes.docx",

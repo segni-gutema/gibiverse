@@ -69,7 +69,7 @@ export function CourseDetailsClient({
       <div className="mb-6">
         <Link
           href="/courses"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
           data-testid="back-to-courses-link"
         >
           <ArrowLeft className="size-3.5" />
@@ -79,7 +79,7 @@ export function CourseDetailsClient({
 
       {/* Course Header Banner */}
       <header
-        className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs"
+        className="rounded-2xl border border-border bg-card p-6 shadow-xs sm:p-8"
         aria-label="Course Header"
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -89,14 +89,17 @@ export function CourseDetailsClient({
               <Badge variant="secondary" className="text-xs font-medium">
                 {course.universityName}
               </Badge>
-              <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+              <Badge
+                variant="outline"
+                className="text-xs font-medium text-muted-foreground"
+              >
                 {course.departmentName}
               </Badge>
             </div>
 
             {/* Course Code & Name */}
             <div>
-              <h1 className="font-mono text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl">
+              <h1 className="font-mono text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
                 {course.code}
               </h1>
               <p className="mt-1 text-lg font-medium text-muted-foreground">
@@ -170,7 +173,7 @@ export function CourseDetailsClient({
             <span>Course Materials</span>
             <Badge
               variant={activeTab === "materials" ? "default" : "secondary"}
-              className="ml-1 text-[11px] px-1.5 py-0"
+              className="ml-1 px-1.5 py-0 text-[11px]"
             >
               {course.materials.length}
             </Badge>
@@ -191,7 +194,7 @@ export function CourseDetailsClient({
             <span>Academic Q&amp;A</span>
             <Badge
               variant={activeTab === "qa" ? "default" : "secondary"}
-              className="ml-1 text-[11px] px-1.5 py-0"
+              className="ml-1 px-1.5 py-0 text-[11px]"
             >
               {course.questions.length}
             </Badge>
@@ -207,7 +210,7 @@ export function CourseDetailsClient({
                 type="button"
                 onClick={() => setSelectedType("all")}
                 className={cn(
-                  "rounded-full px-3 py-1 text-xs font-semibold transition-all border",
+                  "rounded-full border px-3 py-1 text-xs font-semibold transition-all",
                   selectedType === "all"
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -226,7 +229,7 @@ export function CourseDetailsClient({
                     type="button"
                     onClick={() => setSelectedType(opt.value)}
                     className={cn(
-                      "rounded-full px-3 py-1 text-xs font-semibold transition-all border",
+                      "rounded-full border px-3 py-1 text-xs font-semibold transition-all",
                       selectedType === opt.value
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -245,7 +248,7 @@ export function CourseDetailsClient({
                 className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center"
                 data-testid="materials-empty-state"
               >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
+                <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Upload className="size-6" />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
@@ -283,14 +286,17 @@ export function CourseDetailsClient({
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2">
-                        <Badge variant="secondary" className="text-[11px] capitalize">
+                        <Badge
+                          variant="secondary"
+                          className="text-[11px] capitalize"
+                        >
                           {mat.courseMaterialType.replace("_", " ")}
                         </Badge>
                         <span className="text-[11px] text-muted-foreground">
                           {formatAcademicPeriod(mat.academicPeriod)}
                         </span>
                       </div>
-                      <h3 className="mt-3 font-semibold text-foreground line-clamp-2">
+                      <h3 className="mt-3 line-clamp-2 font-semibold text-foreground">
                         {mat.title}
                       </h3>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -309,7 +315,7 @@ export function CourseDetailsClient({
                       <div className="flex items-center gap-1.5">
                         <Link
                           href={`/course-materials/${mat.id}`}
-                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
                           title="Preview Material"
                         >
                           <Eye className="size-3.5" />
@@ -317,7 +323,7 @@ export function CourseDetailsClient({
                         </Link>
                         <a
                           href={`/api/course-materials/${mat.id}/download`}
-                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                           title="Download file"
                           download
                         >
@@ -339,7 +345,7 @@ export function CourseDetailsClient({
                 className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center"
                 data-testid="qa-empty-state"
               >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600 mb-3">
+                <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-sky-500/10 text-sky-600">
                   <MessageSquarePlus className="size-6" />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
@@ -363,18 +369,18 @@ export function CourseDetailsClient({
                   <Link
                     key={q.id}
                     href={`/questions/${q.id}`}
-                    className="flex flex-col gap-2 p-5 hover:bg-muted/40 transition-colors sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 p-5 transition-colors hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between"
                     data-testid={`question-item-${q.id}`}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-foreground hover:text-primary transition-colors">
+                        <h3 className="text-base font-semibold text-foreground transition-colors hover:text-primary">
                           {q.title}
                         </h3>
                         {q.acceptedAnswerId ? (
                           <Badge
                             variant="default"
-                            className="bg-emerald-600 text-white text-[11px] gap-1 px-1.5 py-0"
+                            className="gap-1 bg-emerald-600 px-1.5 py-0 text-[11px] text-white"
                           >
                             <CheckCircle2 className="size-3" />
                             <span>Solved</span>
@@ -386,7 +392,7 @@ export function CourseDetailsClient({
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 pt-2 sm:pt-0">
+                    <div className="flex shrink-0 items-center gap-3 pt-2 sm:pt-0">
                       <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs font-semibold text-foreground">
                         <span className="text-muted-foreground">Score:</span>
                         <span>{q.voteScore}</span>

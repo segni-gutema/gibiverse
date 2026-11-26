@@ -159,7 +159,9 @@ test("GET /api/course-materials filters by universityId", async () => {
 })
 
 test("GET /api/course-materials filters by courseMaterialType", async () => {
-  const res = await app.request("/api/course-materials?courseMaterialType=notes")
+  const res = await app.request(
+    "/api/course-materials?courseMaterialType=notes"
+  )
   assert.strictEqual(res.status, 200)
   const body = (await res.json()) as ListedCourseMaterial[]
   const ids = body.map((row) => row.id)

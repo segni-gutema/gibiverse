@@ -50,7 +50,7 @@ jobs:
         working-directory: apps/api
         run: pnpm exec drizzle-kit migrate
 
-      - run: pnpm turbo lint typecheck
+      - run: pnpm turbo lint typecheck format:check
 
       - run: pnpm check-glossary
 

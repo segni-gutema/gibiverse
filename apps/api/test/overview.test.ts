@@ -98,9 +98,15 @@ before(async () => {
 })
 
 after(async () => {
-  await db.delete(courseMaterial).where(inArray(courseMaterial.id, [resource1Id, resource2Id]))
+  await db
+    .delete(courseMaterial)
+    .where(inArray(courseMaterial.id, [resource1Id, resource2Id]))
   await db.delete(question).where(inArray(question.id, [question1Id]))
-  await db.delete(course).where(inArray(course.id, [courseActive1Id, courseActive2Id, courseInactiveId]))
+  await db
+    .delete(course)
+    .where(
+      inArray(course.id, [courseActive1Id, courseActive2Id, courseInactiveId])
+    )
   await db.delete(user).where(eq(user.id, studentId))
   await db.delete(department).where(eq(department.id, deptId))
   await db.delete(university).where(eq(university.id, uniId))
@@ -186,7 +192,9 @@ test("GET /api/overview returns aggregated platform statistics and recent feeds"
   assert.equal(updatedData.stats.activeCourses, prevActiveCourses + 2)
 
   // Recent resources should include resource2 (more recent) and resource1
-  const foundRes2 = updatedData.recentResources.find((r) => r.id === resource2Id)
+  const foundRes2 = updatedData.recentResources.find(
+    (r) => r.id === resource2Id
+  )
   assert.ok(foundRes2, "resource2 should appear in recent resources feed")
   assert.equal(foundRes2.title, "Algorithms Lecture 1 Notes")
   assert.equal(foundRes2.courseCode, `CS${String(suffix).slice(-4)}A`)

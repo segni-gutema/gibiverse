@@ -176,7 +176,11 @@ test("POST /api/questions trims whitespace on title and body", async () => {
     }),
   })
   assert.strictEqual(res.status, 201)
-  const payload = (await res.json()) as { id: string; title: string; body: string }
+  const payload = (await res.json()) as {
+    id: string
+    title: string
+    body: string
+  }
   createdQuestionIds.push(payload.id)
   assert.strictEqual(payload.title, "Trimmed Question Title")
   assert.strictEqual(payload.body, "Trimmed body content.")

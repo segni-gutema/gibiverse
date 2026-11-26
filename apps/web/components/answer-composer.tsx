@@ -45,8 +45,7 @@ export function AnswerComposer({
     const selected = body.slice(start, end)
     const replacement = `${prefix}${selected || "text"}${suffix}`
 
-    const nextValue =
-      body.slice(0, start) + replacement + body.slice(end)
+    const nextValue = body.slice(0, start) + replacement + body.slice(end)
     setBody(nextValue)
 
     // Focus and highlight the inserted text
@@ -80,7 +79,9 @@ export function AnswerComposer({
       })
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as { error?: string } | null
+        const data = (await res.json().catch(() => null)) as {
+          error?: string
+        } | null
         throw new Error(data?.error || "Failed to post answer.")
       }
 
@@ -111,7 +112,9 @@ export function AnswerComposer({
           render={
             <Link
               href={`/sign-in?callbackUrl=${encodeURIComponent(
-                typeof window !== "undefined" ? window.location.pathname : `/questions/${questionId}`
+                typeof window !== "undefined"
+                  ? window.location.pathname
+                  : `/questions/${questionId}`
               )}`}
             />
           }
@@ -225,7 +228,7 @@ export function AnswerComposer({
           {body.trim() ? (
             <MarkdownRenderer content={body} />
           ) : (
-            <p className="text-sm italic text-muted-foreground">
+            <p className="text-sm text-muted-foreground italic">
               Nothing to preview yet.
             </p>
           )}

@@ -1,12 +1,6 @@
 "use client"
 
-export function ImagePreview({
-  src,
-  alt,
-}: {
-  src: string
-  alt: string
-}) {
+export function ImagePreview({ src, alt }: { src: string; alt: string }) {
   return (
     <div
       className="flex justify-center overflow-auto rounded-lg border border-border bg-muted/20 p-4"

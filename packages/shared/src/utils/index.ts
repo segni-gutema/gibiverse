@@ -10,4 +10,3 @@ export function formatAcademicPeriod(period: string): string {
 
 export * from "./vote.js"
 export * from "./course-material.js"
-

@@ -90,9 +90,7 @@ export function PdfPreview({ fileUrl }: { fileUrl: string }) {
                 variant="outline"
                 size="sm"
                 disabled={pageNumber >= numPages}
-                onClick={() =>
-                  setPageNumber((n) => Math.min(numPages, n + 1))
-                }
+                onClick={() => setPageNumber((n) => Math.min(numPages, n + 1))}
               >
                 Next
               </Button>

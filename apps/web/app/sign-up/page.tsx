@@ -92,7 +92,8 @@ function SignUpForm() {
           Student Registration
         </h1>
         <p className="text-sm text-muted-foreground">
-          Join Gibiverse to share course materials and participate in academic Q&amp;A
+          Join Gibiverse to share course materials and participate in academic
+          Q&amp;A
         </p>
       </div>
 

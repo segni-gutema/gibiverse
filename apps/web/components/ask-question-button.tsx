@@ -6,7 +6,10 @@ import { MessageSquarePlus } from "lucide-react"
 import { Button } from "@gibiverse/ui/components/button"
 import { AskQuestionDialog } from "@/components/ask-question-dialog"
 import type { Course, University } from "@/app/courses/presentation"
-import { ASK_QUESTION_PATH, getAskSignInHref } from "@/app/questions/presentation"
+import {
+  ASK_QUESTION_PATH,
+  getAskSignInHref,
+} from "@/app/questions/presentation"
 import { useSession } from "@/lib/auth-client"
 
 export type AskQuestionButtonProps = {

@@ -233,9 +233,7 @@ const search = new Hono().get(
         studentName: student.name,
         voteScore: question.voteScore,
         answerCount: question.answerCount,
-        userVote: user
-          ? vote.value
-          : sql<number | null>`null`.as("userVote"),
+        userVote: user ? vote.value : sql<number | null>`null`.as("userVote"),
       }
 
       const rows = user

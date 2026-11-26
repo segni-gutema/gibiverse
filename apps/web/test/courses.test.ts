@@ -256,7 +256,10 @@ test("PROTOTYPE_COURSES dataset covers realistic data and all required edge case
   const withDetails = PROTOTYPE_COURSES.filter(
     (c) => (c.materials?.length ?? 0) > 0 && (c.questions?.length ?? 0) > 0
   )
-  assert.ok(withDetails.length > 0, "Mock data has courses with detailed materials and questions for preview tabs")
+  assert.ok(
+    withDetails.length > 0,
+    "Mock data has courses with detailed materials and questions for preview tabs"
+  )
 })
 
 test("filterCourses processes live CourseSummary catalog with cascading filters, sort, and search", () => {
@@ -316,7 +319,9 @@ test("filterCourses processes live CourseSummary catalog with cascading filters,
   assert.equal(searchedName[0]?.code, "MATH201")
 
   // Sorting
-  const sortedMaterials = filterCourses(liveCourses, { sortBy: "materials-desc" })
+  const sortedMaterials = filterCourses(liveCourses, {
+    sortBy: "materials-desc",
+  })
   assert.equal(sortedMaterials[0]?.code, "CS301")
   assert.equal(sortedMaterials[0]?.materialsCount, 20)
 
@@ -382,6 +387,9 @@ test("getCourseDetailsEmptyState provides contextual copy per tab and filter", (
   const qaEmpty = getCourseDetailsEmptyState("qa", "CS201")
   assert.ok(qaEmpty.title.includes("CS201"))
   assert.ok(qaEmpty.description.includes("clarification"))
-  assert.ok(!qaEmpty.description.includes("topic"), "Should not use prohibited word topic")
+  assert.ok(
+    !qaEmpty.description.includes("topic"),
+    "Should not use prohibited word topic"
+  )
   assert.equal(qaEmpty.actionLabel, "Ask a Question")
 })

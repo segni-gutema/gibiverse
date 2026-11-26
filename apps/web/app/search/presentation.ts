@@ -1,4 +1,8 @@
-import type { SearchType, SearchSort, CourseMaterialType } from "@gibiverse/shared/types"
+import type {
+  SearchType,
+  SearchSort,
+  CourseMaterialType,
+} from "@gibiverse/shared/types"
 
 export type { SearchType, SearchSort }
 export type SearchTab = SearchType

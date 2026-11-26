@@ -27,9 +27,7 @@ export function getOverviewEmptyState(stats: PlatformStats): {
 } {
   const count = stats.totalCourseMaterials ?? stats.totalResources ?? 0
   const hasActivity =
-    count > 0 ||
-    stats.totalQuestions > 0 ||
-    stats.activeCourses > 0
+    count > 0 || stats.totalQuestions > 0 || stats.activeCourses > 0
 
   if (!hasActivity) {
     return {

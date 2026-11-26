@@ -35,7 +35,8 @@ export default async function CoursesPage() {
             Course Directory
           </h1>
           <p className="text-sm text-muted-foreground">
-            Browse courses, explore materials, and participate in academic Q&amp;A.
+            Browse courses, explore materials, and participate in academic
+            Q&amp;A.
           </p>
         </div>
       </div>

@@ -38,7 +38,9 @@ test("Unauthenticated student visiting protected action is redirected to /sign-i
   assert.ok(location)
   assert.match(location, /\/sign-in\?callbackUrl=/)
   assert.ok(
-    location.includes(encodeURIComponent("/course-materials/upload?course=CS101"))
+    location.includes(
+      encodeURIComponent("/course-materials/upload?course=CS101")
+    )
   )
 })
 

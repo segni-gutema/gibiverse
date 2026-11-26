@@ -23,10 +23,7 @@ test("subpath export ./types resolves and provides type definitions", async () =
     typesModule.askQuestionSchema,
     "askQuestionSchema should be exported"
   )
-  assert.ok(
-    typesModule.postAnswerSchema,
-    "postAnswerSchema should be exported"
-  )
+  assert.ok(typesModule.postAnswerSchema, "postAnswerSchema should be exported")
   assert.ok(
     typesModule.acceptAnswerSchema,
     "acceptAnswerSchema should be exported"

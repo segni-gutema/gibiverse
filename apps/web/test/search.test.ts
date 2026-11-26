@@ -78,7 +78,10 @@ test("getSearchEmptyState handles empty and non-empty queries across tabs includ
   assert.match(noMatchCourses.description, /xyz123/)
 
   const filteredMaterials = getSearchEmptyState("xyz123", "resources", true)
-  assert.equal(filteredMaterials.title, "No course materials match these filters")
+  assert.equal(
+    filteredMaterials.title,
+    "No course materials match these filters"
+  )
 
   const filteredCourses = getSearchEmptyState("xyz123", "courses", true)
   assert.equal(filteredCourses.title, "No courses match these filters")
@@ -88,7 +91,12 @@ test("emptySearchResponse returns zeroed response with courses without network f
   const result = emptySearchResponse("resources")
   assert.equal(result.query, "")
   assert.equal(result.type, "resources")
-  assert.deepEqual(result.counts, { all: 0, resources: 0, questions: 0, courses: 0 })
+  assert.deepEqual(result.counts, {
+    all: 0,
+    resources: 0,
+    questions: 0,
+    courses: 0,
+  })
   assert.deepEqual(result.resources, [])
   assert.deepEqual(result.questions, [])
   assert.deepEqual(result.courses, [])
@@ -96,5 +104,10 @@ test("emptySearchResponse returns zeroed response with courses without network f
   const platformResult = emptySearchResponse("courses")
   assert.equal(platformResult.query, "")
   assert.equal(platformResult.type, "courses")
-  assert.deepEqual(platformResult.counts, { all: 0, resources: 0, questions: 0, courses: 0 })
+  assert.deepEqual(platformResult.counts, {
+    all: 0,
+    resources: 0,
+    questions: 0,
+    courses: 0,
+  })
 })

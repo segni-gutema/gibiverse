@@ -41,8 +41,7 @@ test("questionCatalogEmptyState distinguishes filtered vs empty catalog", () => 
     }),
     {
       title: "No questions yet",
-      description:
-        "Be the first to ask an academic question for your courses.",
+      description: "Be the first to ask an academic question for your courses.",
     }
   )
   assert.ok(

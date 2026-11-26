@@ -64,7 +64,9 @@ const questions = new Hono()
     zValidator("json", askQuestionSchema, (result, c) => {
       if (!result.success) {
         return c.json(
-          { error: result.error.issues[0]?.message ?? "Invalid question input" },
+          {
+            error: result.error.issues[0]?.message ?? "Invalid question input",
+          },
           400
         )
       }

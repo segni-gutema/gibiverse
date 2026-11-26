@@ -155,7 +155,7 @@ export function CourseFilterDropdown({
       {dropdownOpen ? (
         <div
           ref={dropdownRef}
-          className="absolute left-0 top-full z-40 mt-1.5 w-72 rounded-lg border border-border bg-background p-3 shadow-lg"
+          className="absolute top-full left-0 z-40 mt-1.5 w-72 rounded-lg border border-border bg-background p-3 shadow-lg"
           data-testid="course-filter-dropdown-popover"
         >
           <div className="flex flex-col gap-3">

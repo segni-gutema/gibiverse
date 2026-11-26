@@ -120,14 +120,14 @@ function HeaderSearchBar({
       onSubmit={handleSubmit}
       className={cn("relative w-full", className)}
     >
-      <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         type="search"
         name="q"
         placeholder="Search course materials, questions, course codes..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="h-9 w-full rounded-md border border-input bg-muted/40 pl-9 pr-3 text-sm transition-colors hover:bg-muted/60 focus-visible:bg-background"
+        className="h-9 w-full rounded-md border border-input bg-muted/40 pr-3 pl-9 text-sm transition-colors hover:bg-muted/60 focus-visible:bg-background"
         aria-label="Search platform"
         data-testid="header-search-input"
       />
@@ -218,7 +218,7 @@ export function Header() {
         </div>
 
         {/* Desktop Search Bar */}
-        <div className="mx-4 hidden max-w-xs flex-1 lg:max-w-sm md:block">
+        <div className="mx-4 hidden max-w-xs flex-1 md:block lg:max-w-sm">
           <React.Suspense
             fallback={
               <div className="h-9 w-full animate-pulse rounded-md bg-muted/40" />
@@ -317,9 +317,7 @@ export function Header() {
                 <div className="h-9 w-full animate-pulse rounded-md bg-muted/40" />
               }
             >
-              <HeaderSearchBar
-                onSubmitted={() => setMobileMenuOpen(false)}
-              />
+              <HeaderSearchBar onSubmitted={() => setMobileMenuOpen(false)} />
             </React.Suspense>
           </div>
 

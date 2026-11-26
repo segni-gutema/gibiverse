@@ -23,7 +23,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint .",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "format": "prettier --ignore-path ../../.prettierignore --write \"**/*.{ts,tsx}\"",
+    "format:check": "prettier --ignore-path ../../.prettierignore --check \"**/*.{ts,tsx}\"",
     "test": "node --import tsx --test test/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

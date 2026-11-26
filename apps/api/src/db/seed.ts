@@ -9,7 +9,11 @@ const DEPARTMENTS = [
     name: "Computer Science",
     courses: [
       { id: "course_cs201", code: "CS201", name: "Data Structures" },
-      { id: "course_cs101", code: "CS101", name: "Introduction to Programming" },
+      {
+        id: "course_cs101",
+        code: "CS101",
+        name: "Introduction to Programming",
+      },
       { id: "course_cs301", code: "CS301", name: "Algorithms" },
     ],
   },

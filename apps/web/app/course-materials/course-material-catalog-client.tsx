@@ -2,12 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import {
-  BookOpen,
-  File,
-  FileText,
-  Presentation,
-} from "lucide-react"
+import { BookOpen, File, FileText, Presentation } from "lucide-react"
 import { cn } from "@gibiverse/ui/lib/utils"
 import { Badge } from "@gibiverse/ui/components/badge"
 import { Button } from "@gibiverse/ui/components/button"
@@ -72,8 +67,9 @@ export function CourseMaterialCatalogClient({
     universityId: null,
     courseId: null,
   })
-  const [courseMaterials, setCourseMaterials] =
-    React.useState<CatalogCourseMaterial[]>(initialCourseMaterials)
+  const [courseMaterials, setCourseMaterials] = React.useState<
+    CatalogCourseMaterial[]
+  >(initialCourseMaterials)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const isFirstRender = React.useRef(true)
@@ -182,7 +178,7 @@ export function CourseMaterialCatalogClient({
               <li key={material.id}>
                 <Link
                   href={`/course-materials/${material.id}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                  className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                   data-testid={`course-material-card-${material.id}`}
                 >
                   {/* Thumbnail */}

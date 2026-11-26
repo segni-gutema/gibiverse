@@ -13,9 +13,12 @@ export const question = pgTable("question", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  acceptedAnswerId: text("accepted_answer_id").references((): any => answer.id, {
-    onDelete: "set null",
-  }),
+  acceptedAnswerId: text("accepted_answer_id").references(
+    (): any => answer.id,
+    {
+      onDelete: "set null",
+    }
+  ),
   voteScore: integer("vote_score").default(0).notNull(),
   answerCount: integer("answer_count").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

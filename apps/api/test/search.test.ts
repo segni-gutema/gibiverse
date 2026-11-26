@@ -25,7 +25,12 @@ const questionMathId = `q_math_${suffix}`
 type SearchResponse = {
   query: string
   type: string
-  counts: { all: number; resources: number; questions: number; courses?: number }
+  counts: {
+    all: number
+    resources: number
+    questions: number
+    courses?: number
+  }
   resources: Array<{
     id: string
     title: string
@@ -142,9 +147,7 @@ after(async () => {
     .delete(courseMaterial)
     .where(inArray(courseMaterial.id, [resourceCsId, resourceMathId]))
   await db.delete(user).where(eq(user.id, studentId))
-  await db
-    .delete(course)
-    .where(inArray(course.id, [courseCsId, courseMathId]))
+  await db.delete(course).where(inArray(course.id, [courseCsId, courseMathId]))
   await db.delete(department).where(eq(department.id, deptId))
   await db.delete(university).where(eq(university.id, uniId))
 })
@@ -162,7 +165,12 @@ test("GET /api/search with empty query returns 0 counts and empty results", asyn
   const body = (await res.json()) as SearchResponse
   assert.equal(body.query, "")
   assert.equal(body.type, "all")
-  assert.deepEqual(body.counts, { all: 0, resources: 0, questions: 0, courses: 0 })
+  assert.deepEqual(body.counts, {
+    all: 0,
+    resources: 0,
+    questions: 0,
+    courses: 0,
+  })
   assert.deepEqual(body.resources, [])
   assert.deepEqual(body.questions, [])
   assert.deepEqual(body.courses, [])
@@ -186,9 +194,7 @@ test("GET /api/search matches resource title and question body case-insensitivel
 
 test("GET /api/search matches course code for resources, questions, and courses", async () => {
   // CS course code matches CS resource, CS question, and CS course
-  const res = await app.request(
-    `/api/search?q=${courseCsCode.toLowerCase()}`
-  )
+  const res = await app.request(`/api/search?q=${courseCsCode.toLowerCase()}`)
   assert.equal(res.status, 200)
   const body = (await res.json()) as SearchResponse
   assert.equal(body.counts.all, 3)

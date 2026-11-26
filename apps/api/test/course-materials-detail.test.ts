@@ -100,7 +100,9 @@ before(async () => {
 
 after(async () => {
   if (courseMaterialId) {
-    await db.delete(courseMaterial).where(eq(courseMaterial.id, courseMaterialId))
+    await db
+      .delete(courseMaterial)
+      .where(eq(courseMaterial.id, courseMaterialId))
   }
   await db.delete(course).where(eq(course.id, courseId))
   await db.delete(department).where(eq(department.id, deptId))
@@ -159,13 +161,12 @@ test("GET /api/course-materials/:id returns 404 for unknown course material", as
 })
 
 test("GET /api/course-materials/:id/download streams attachment with original filename", async () => {
-  const res = await app.request(`/api/course-materials/${courseMaterialId}/download`)
+  const res = await app.request(
+    `/api/course-materials/${courseMaterialId}/download`
+  )
   assert.strictEqual(res.status, 200)
   assert.strictEqual(res.headers.get("content-type"), "application/pdf")
-  assert.match(
-    res.headers.get("content-disposition") ?? "",
-    /attachment/i
-  )
+  assert.match(res.headers.get("content-disposition") ?? "", /attachment/i)
   assert.match(
     res.headers.get("content-disposition") ?? "",
     /CS Midterm 2024\.pdf/
@@ -175,7 +176,9 @@ test("GET /api/course-materials/:id/download streams attachment with original fi
 })
 
 test("GET /api/course-materials/:id/preview streams inline with matching MIME type", async () => {
-  const res = await app.request(`/api/course-materials/${courseMaterialId}/preview`)
+  const res = await app.request(
+    `/api/course-materials/${courseMaterialId}/preview`
+  )
   assert.strictEqual(res.status, 200)
   assert.strictEqual(res.headers.get("content-type"), "application/pdf")
   assert.match(res.headers.get("content-disposition") ?? "", /inline/i)

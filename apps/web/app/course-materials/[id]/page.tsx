@@ -8,10 +8,7 @@ import {
   formatAcademicPeriod,
   formatRelativeUploadDate,
 } from "@/lib/formatters"
-import {
-  resolvePreviewType,
-  courseMaterialDownloadUrl,
-} from "../presentation"
+import { resolvePreviewType, courseMaterialDownloadUrl } from "../presentation"
 import { formatBytes } from "@gibiverse/shared/utils"
 
 type CourseMaterialPageProps = {
@@ -87,13 +84,13 @@ export default async function CourseMaterialDetailPage({
       <div className="mb-8 flex flex-col gap-3">
         {/* Row 1: Title on left, Download button to far right */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground sm:max-w-2xl">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:max-w-2xl sm:text-3xl">
             {courseMaterial.title}
           </h1>
 
           <Button
             size="lg"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shrink-0 shadow-sm"
+            className="shrink-0 bg-emerald-600 font-medium text-white shadow-sm hover:bg-emerald-700"
             nativeButton={false}
             render={
               <a
@@ -103,16 +100,16 @@ export default async function CourseMaterialDetailPage({
             }
             data-testid="download-button"
           >
-            <Download className="size-4 mr-2" />
+            <Download className="mr-2 size-4" />
             Download
-            <span className="ml-2.5 rounded bg-emerald-700/80 px-2 py-0.5 text-xs font-mono font-normal tracking-wide">
+            <span className="ml-2.5 rounded bg-emerald-700/80 px-2 py-0.5 font-mono text-xs font-normal tracking-wide">
               {fileExt} · {formatBytes(courseMaterial.fileSize)}
             </span>
           </Button>
         </div>
 
         {/* Row 2: University, Department, Course, Academic Year in middle */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:text-sm">
           <span>{universityName}</span>
           <span className="text-muted-foreground/40">·</span>
           <span>{departmentName}</span>
@@ -140,7 +137,7 @@ export default async function CourseMaterialDetailPage({
         aria-labelledby="preview-heading"
         className="flex flex-col gap-4"
       >
-        <div className="rounded-xl border bg-card p-2 sm:p-4 shadow-sm">
+        <div className="rounded-xl border bg-card p-2 shadow-sm sm:p-4">
           <CourseMaterialPreview
             courseMaterialId={courseMaterial.id}
             fileName={courseMaterial.fileName}

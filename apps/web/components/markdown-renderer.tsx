@@ -114,7 +114,10 @@ export function MarkdownRenderer({
 
           case "code_block":
             return (
-              <div key={i} className="overflow-hidden rounded-md border bg-muted/60">
+              <div
+                key={i}
+                className="overflow-hidden rounded-md border bg-muted/60"
+              >
                 {node.language ? (
                   <div className="border-b px-3 py-1 font-mono text-xs text-muted-foreground">
                     {node.language}
@@ -130,7 +133,7 @@ export function MarkdownRenderer({
             return (
               <blockquote
                 key={i}
-                className="border-l-4 border-primary/40 pl-4 italic text-muted-foreground"
+                className="border-l-4 border-primary/40 pl-4 text-muted-foreground italic"
               >
                 {renderInlineText(node.text)}
               </blockquote>

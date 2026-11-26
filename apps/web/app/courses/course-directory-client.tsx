@@ -112,7 +112,13 @@ export function CourseDirectoryClient({
       searchQuery,
       sortBy,
     })
-  }, [normalizedCourses, selectedUniversityId, selectedDepartmentId, searchQuery, sortBy])
+  }, [
+    normalizedCourses,
+    selectedUniversityId,
+    selectedDepartmentId,
+    searchQuery,
+    sortBy,
+  ])
 
   const hasActiveFilters =
     selectedUniversityId !== ALL_OPTION ||
@@ -129,12 +135,12 @@ export function CourseDirectoryClient({
 
   const selectedUniversityName =
     selectedUniversityId !== ALL_OPTION
-      ? universities.find((u) => u.id === selectedUniversityId)?.name ?? null
+      ? (universities.find((u) => u.id === selectedUniversityId)?.name ?? null)
       : null
 
   const selectedDepartmentName =
     selectedDepartmentId !== ALL_OPTION
-      ? departments.find((d) => d.id === selectedDepartmentId)?.name ?? null
+      ? (departments.find((d) => d.id === selectedDepartmentId)?.name ?? null)
       : null
 
   return (
@@ -162,7 +168,7 @@ export function CourseDirectoryClient({
                 placeholder="Search by code (e.g. CS101) or name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-8"
+                className="pr-8 pl-9"
                 data-testid="course-search-input"
               />
               {searchQuery ? (
@@ -189,9 +195,7 @@ export function CourseDirectoryClient({
             </label>
             <Select
               value={selectedUniversityId}
-              onValueChange={(val) =>
-                handleUniversityChange(val ?? ALL_OPTION)
-              }
+              onValueChange={(val) => handleUniversityChange(val ?? ALL_OPTION)}
             >
               <SelectTrigger
                 id="university-select"
@@ -300,9 +304,7 @@ export function CourseDirectoryClient({
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="code-asc">Code (A–Z)</SelectItem>
-                  <SelectItem value="materials-desc">
-                    Most Materials
-                  </SelectItem>
+                  <SelectItem value="materials-desc">Most Materials</SelectItem>
                   <SelectItem value="qa-desc">Most Active Q&amp;A</SelectItem>
                 </SelectGroup>
               </SelectContent>
