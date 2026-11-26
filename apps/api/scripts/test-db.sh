@@ -63,13 +63,6 @@ is_port_available() {
   ' "$1" >/dev/null 2>&1
 }
 
-can_connect_test_db() {
-  local port="$1"
-  PGPASSWORD="$PG_PASSWORD" "$PG_BIN/psql" \
-    -h "$PG_HOST" -p "$port" -U "$PG_USER" -d postgres \
-    -tAc "SELECT 1" >/dev/null 2>&1
-}
-
 ensure_database() {
   local port="$1"
   if ! PGPASSWORD="$PG_PASSWORD" "$PG_BIN/psql" \
@@ -90,14 +83,14 @@ EOF
 }
 
 cmd_start() {
-  if [ -f "$PGENV_FILE" ]; then
-    # shellcheck disable=SC1090
-    . "$PGENV_FILE"
-  fi
-
   local active_port="$PG_PORT"
 
-  if can_connect_test_db "$active_port"; then
+  if [ -f "$PGDATA/PG_VERSION" ] && "$PG_BIN/pg_ctl" -D "$PGDATA" status >/dev/null 2>&1; then
+    if [ -f "$PGENV_FILE" ]; then
+      # shellcheck disable=SC1090
+      . "$PGENV_FILE"
+      active_port="$PG_PORT"
+    fi
     ensure_database "$active_port"
     write_runtime_env "$active_port"
     echo "PostgreSQL test database is already running on $PG_HOST:$active_port ($PG_DATABASE)."
@@ -105,12 +98,6 @@ cmd_start() {
   fi
 
   if ! is_port_available "$active_port"; then
-    if can_connect_test_db "$PG_FALLBACK_PORT"; then
-      ensure_database "$PG_FALLBACK_PORT"
-      write_runtime_env "$PG_FALLBACK_PORT"
-      echo "PostgreSQL test database is already running on $PG_HOST:$PG_FALLBACK_PORT ($PG_DATABASE)."
-      return 0
-    fi
     echo "Port $active_port is in use; starting isolated test PostgreSQL on port $PG_FALLBACK_PORT."
     active_port="$PG_FALLBACK_PORT"
   fi
