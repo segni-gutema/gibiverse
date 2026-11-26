@@ -14,7 +14,6 @@
     "@next/eslint-plugin-next": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
-    "eslint-plugin-only-warn": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "eslint-plugin-turbo": "catalog:",
     "globals": "catalog:"

@@ -49,13 +49,18 @@ export function VoteControls({
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   // Keep internal state in sync if parent props change
-  React.useEffect(() => {
+  const [prevInitialScore, setPrevInitialScore] = React.useState(initialScore)
+  if (initialScore !== prevInitialScore) {
+    setPrevInitialScore(initialScore)
     setScore(initialScore)
-  }, [initialScore])
+  }
 
-  React.useEffect(() => {
-    setActiveVote(normalizeVote(initialStudentVote ?? initialUserVote))
-  }, [initialStudentVote, initialUserVote])
+  const propVote = normalizeVote(initialStudentVote ?? initialUserVote)
+  const [prevPropVote, setPrevPropVote] = React.useState(propVote)
+  if (propVote !== prevPropVote) {
+    setPrevPropVote(propVote)
+    setActiveVote(propVote)
+  }
 
   const { data: session } = useSession()
   const isAuthenticated = Boolean(session?.user)

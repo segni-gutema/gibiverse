@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { BookOpen, File, FileText, Presentation } from "lucide-react"
 import { cn } from "@gibiverse/ui/lib/utils"
@@ -184,11 +185,12 @@ export function CourseMaterialCatalogClient({
                   {/* Thumbnail */}
                   <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-muted/50">
                     {material.thumbnailPath ? (
-                      <img
+                      <Image
                         src={`/api/course-materials/${material.id}/thumbnail`}
                         alt=""
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
+                        fill
+                        unoptimized
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center transition-transform duration-300 group-hover:scale-105">

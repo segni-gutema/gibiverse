@@ -54,12 +54,17 @@ export function AskQuestionDialog({
   const [error, setError] = React.useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  React.useEffect(() => {
+  const [prevOpen, setPrevOpen] = React.useState(open)
+  const [prevInitialCourseId, setPrevInitialCourseId] =
+    React.useState(initialCourseId)
+  if (open !== prevOpen || initialCourseId !== prevInitialCourseId) {
+    setPrevOpen(open)
+    setPrevInitialCourseId(initialCourseId)
     if (open && initialCourseId) {
       setCourseId(initialCourseId)
       setUniversityId(resolvedUnivId)
     }
-  }, [open, initialCourseId, resolvedUnivId])
+  }
 
   function resetForm() {
     setTitle("")

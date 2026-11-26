@@ -11,7 +11,6 @@ import {
   FileText,
   MessageSquare,
   MessageSquarePlus,
-  Sparkles,
   Upload,
 } from "lucide-react"
 import { Badge } from "@gibiverse/ui/components/badge"
