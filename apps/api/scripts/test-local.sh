@@ -20,6 +20,5 @@ if [ -f "$API_DIR/.pg-test/env" ]; then
   set +a
 fi
 
-pnpm --filter @gibiverse/shared build
 pnpm exec drizzle-kit migrate
 pnpm test "$@"
