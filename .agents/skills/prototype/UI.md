@@ -91,11 +91,15 @@ Behaviour:
 
 Put the switcher in a single shared component so both sub-shapes can reuse it. Locate it wherever shared UI lives in the project.
 
-### 5. Hand it over
+### 5. Verify rendered views
+
+Before handing the prototype over, start the dev server if needed and inspect each `?variant=` view in a headless browser using `browser_eval` (`next-devtools` MCP). Confirm that every variant renders cleanly with no console/runtime errors, broken layout, or clipped/overlapping elements.
+
+### 6. Hand it over
 
 Surface the URL (and the `?variant=` keys). The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"**, which is the actual design they want.
 
-### 6. Capture the answer and clean up
+### 7. Capture the answer and clean up
 
 Once a variant has won, capture the answer (which variant and why), then capture the prototype the way the [SKILL](SKILL.md) describes. Fold the winner into the real code and move the rest onto the throwaway branch, not into main:
 
