@@ -3,70 +3,47 @@ import assert from "node:assert/strict"
 import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
-import { university, department, course } from "../src/db/schema/academic.js"
 import { question } from "../src/db/schema/question.js"
+import {
+  createAuthenticatedStudent,
+  createTestScope,
+  seedAcademicHierarchy,
+  type SeededAcademicHierarchy,
+} from "./fixtures.js"
 
-const suffix = Date.now()
-const uniId = `uni_q_${suffix}`
-const deptId = `dept_q_${suffix}`
-const courseId = `course_q_${suffix}`
-const courseCode = `Q${String(suffix).slice(-3)}`
+const scope = createTestScope("q")
+let academic: SeededAcademicHierarchy
+let courseId: string
 
 let sessionCookie: string
 let studentId: string
 const createdQuestionIds: string[] = []
 
 before(async () => {
-  await db.insert(university).values({
-    id: uniId,
-    name: `Question Uni ${suffix}`,
+  academic = await seedAcademicHierarchy({
+    scope,
+    universityName: `Question Uni ${scope.suffix}`,
+    departmentName: `Question Dept ${scope.suffix}`,
+    courseName: "Question Course",
+    courseCodeTag: "Q",
   })
-  await db.insert(department).values({
-    id: deptId,
-    name: `Question Dept ${suffix}`,
-    universityId: uniId,
-  })
-  await db.insert(course).values({
-    id: courseId,
-    name: "Question Course",
-    code: courseCode,
-    universityId: uniId,
-    departmentId: deptId,
-  })
+  courseId = academic.courseId
 
-  const email = `question_${suffix}@university.edu`
-  const password = "QuestionPassword123!"
-  const signUpRes = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: "Question Student",
-      email,
-      password,
-    }),
+  const student = await createAuthenticatedStudent({
+    scope,
+    label: "question",
+    name: "Question Student",
+    password: "QuestionPassword123!",
   })
-  assert.strictEqual(signUpRes.status, 200)
-  const setCookie = signUpRes.headers.get("set-cookie")
-  assert.ok(setCookie)
-  sessionCookie = setCookie.split(";")[0]!
-
-  const sessionRes = await app.request("/api/auth/get-session", {
-    headers: { cookie: sessionCookie },
-  })
-  const sessionBody = (await sessionRes.json()) as {
-    user?: { id: string }
-  }
-  assert.ok(sessionBody.user?.id)
-  studentId = sessionBody.user.id
+  sessionCookie = student.cookie
+  studentId = student.userId
 })
 
 after(async () => {
   for (const id of createdQuestionIds) {
     await db.delete(question).where(eq(question.id, id))
   }
-  await db.delete(course).where(eq(course.id, courseId))
-  await db.delete(department).where(eq(department.id, deptId))
-  await db.delete(university).where(eq(university.id, uniId))
+  await academic.cleanup()
 })
 
 test("POST /api/questions requires authentication", async () => {

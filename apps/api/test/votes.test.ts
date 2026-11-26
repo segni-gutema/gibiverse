@@ -3,15 +3,19 @@ import assert from "node:assert/strict"
 import { eq } from "drizzle-orm"
 import { app } from "../src/app.js"
 import db from "../src/db/index.js"
-import { university, department, course } from "../src/db/schema/academic.js"
 import { question, answer } from "../src/db/schema/question.js"
 import { vote } from "../src/db/schema/vote.js"
+import {
+  createAuthenticatedStudent,
+  createTestScope,
+  seedAcademicHierarchy,
+  type SeededAcademicHierarchy,
+} from "./fixtures.js"
 
-const suffix = Date.now()
-const uniId = `uni_vote_${suffix}`
-const deptId = `dept_vote_${suffix}`
-const courseId = `course_vote_${suffix}`
-const courseCode = `VOTE${String(suffix).slice(-3)}`
+const scope = createTestScope("vote")
+const suffix = scope.suffix
+let academic: SeededAcademicHierarchy
+let courseId: string
 
 let studentACookie: string
 let studentAId: string
@@ -20,65 +24,31 @@ let testQuestionId: string
 let testAnswerId: string
 
 before(async () => {
-  await db.insert(university).values({
-    id: uniId,
-    name: `Vote Uni ${suffix}`,
+  academic = await seedAcademicHierarchy({
+    scope,
+    universityName: `Vote Uni ${scope.suffix}`,
+    departmentName: `Vote Dept ${scope.suffix}`,
+    courseName: "Vote Course",
+    courseCodeTag: "VT",
   })
-  await db.insert(department).values({
-    id: deptId,
-    name: `Vote Dept ${suffix}`,
-    universityId: uniId,
-  })
-  await db.insert(course).values({
-    id: courseId,
-    name: "Vote Course",
-    code: courseCode,
-    universityId: uniId,
-    departmentId: deptId,
-  })
+  courseId = academic.courseId
 
-  // Create Student A
-  const resA = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: "Student Alpha",
-      email: `alpha_${suffix}@university.edu`,
-      password: "Password123!",
-    }),
+  const studentA = await createAuthenticatedStudent({
+    scope,
+    label: "alpha",
+    name: "Student Alpha",
+    password: "Password123!",
   })
-  assert.strictEqual(resA.status, 200)
-  const cookieA = resA.headers.get("set-cookie")
-  assert.ok(cookieA)
-  studentACookie = cookieA.split(";")[0]!
-  const sessionA = (await (
-    await app.request("/api/auth/get-session", {
-      headers: { cookie: studentACookie },
-    })
-  ).json()) as { user?: { id: string } }
-  assert.ok(sessionA.user?.id)
-  studentAId = sessionA.user.id
+  studentACookie = studentA.cookie
+  studentAId = studentA.userId
 
-  // Create Student B
-  const resB = await app.request("/api/auth/sign-up/email", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name: "Student Beta",
-      email: `beta_${suffix}@university.edu`,
-      password: "Password123!",
-    }),
+  const studentB = await createAuthenticatedStudent({
+    scope,
+    label: "beta",
+    name: "Student Beta",
+    password: "Password123!",
   })
-  assert.strictEqual(resB.status, 200)
-  const cookieB = resB.headers.get("set-cookie")
-  assert.ok(cookieB)
-  studentBCookie = cookieB.split(";")[0]!
-  const sessionB = (await (
-    await app.request("/api/auth/get-session", {
-      headers: { cookie: studentBCookie },
-    })
-  ).json()) as { user?: { id: string } }
-  assert.ok(sessionB.user?.id)
+  studentBCookie = studentB.cookie
 
   // Create question by Student A
   const qRes = await app.request("/api/questions", {
@@ -117,9 +87,7 @@ after(async () => {
   await db.delete(vote).where(eq(vote.targetId, testQuestionId))
   await db.delete(vote).where(eq(vote.targetId, testAnswerId))
   await db.delete(question).where(eq(question.id, testQuestionId))
-  await db.delete(course).where(eq(course.id, courseId))
-  await db.delete(department).where(eq(department.id, deptId))
-  await db.delete(university).where(eq(university.id, uniId))
+  await academic.cleanup()
 })
 
 test("POST /api/votes requires authentication", async () => {

@@ -35,10 +35,12 @@
     "@gibiverse/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@types/dompurify": "catalog:",
+    "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "eslint": "catalog:",
+    "jsdom": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }
