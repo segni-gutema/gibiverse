@@ -16,10 +16,14 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "test": "node --import tsx --test --test-concurrency=1 --test-force-exit test/**/*.test.ts",
+    "test:local": "./scripts/test-local.sh",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --output json",
     "db:push": "drizzle-kit push --output json",
-    "db:seed": "tsx src/db/seed.ts"
+    "db:seed": "tsx src/db/seed.ts",
+    "db:test:start": "./scripts/test-db.sh start",
+    "db:test:stop": "./scripts/test-db.sh stop",
+    "db:test:status": "./scripts/test-db.sh status"
   },
   "dependencies": {
     "@gibiverse/shared": "workspace:*",

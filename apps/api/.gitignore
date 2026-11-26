@@ -4,5 +4,7 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.test
+.pg-test/
 *.log
 .DS_Store
