@@ -65,7 +65,3 @@ export function UploadCourseMaterialButton({
     </>
   )
 }
-
-// Backwards compatibility alias
-export const UploadResourceButton = UploadCourseMaterialButton
-export type UploadResourceButtonProps = UploadCourseMaterialButtonProps

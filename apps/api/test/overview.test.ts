@@ -22,14 +22,14 @@ const question1Id = `q1_ov_${suffix}`
 
 type OverviewResponse = {
   stats: {
-    totalResources: number
+    totalCourseMaterials: number
     totalQuestions: number
     activeCourses: number
   }
-  recentResources: Array<{
+  recentCourseMaterials: Array<{
     id: string
     title: string
-    resourceType: string
+    courseMaterialType: string
     year?: number
     semester?: string
     academicPeriod?: string
@@ -120,11 +120,11 @@ test("GET /api/overview returns zero counts and empty feeds when platform has no
   const data = (await res.json()) as OverviewResponse
 
   // Response must always include the full stats shape
-  assert.ok(typeof data.stats.totalResources === "number")
+  assert.ok(typeof data.stats.totalCourseMaterials === "number")
   assert.ok(typeof data.stats.totalQuestions === "number")
   assert.ok(typeof data.stats.activeCourses === "number")
   // Feeds are always arrays (possibly empty)
-  assert.ok(Array.isArray(data.recentResources))
+  assert.ok(Array.isArray(data.recentCourseMaterials))
   assert.ok(Array.isArray(data.recentQuestions))
   // The inactive course has no activity — does not raise activeCourses
   // We check that the counts do not include our unrelated fixtures
@@ -137,7 +137,7 @@ test("GET /api/overview returns aggregated platform statistics and recent feeds"
   assert.equal(initialRes.status, 200)
   const initialData = (await initialRes.json()) as OverviewResponse
 
-  const prevResCount = initialData.stats.totalResources
+  const prevResCount = initialData.stats.totalCourseMaterials
   const prevQCount = initialData.stats.totalQuestions
   const prevActiveCourses = initialData.stats.activeCourses
 
@@ -187,18 +187,21 @@ test("GET /api/overview returns aggregated platform statistics and recent feeds"
   const updatedData = (await updatedRes.json()) as OverviewResponse
 
   // Statistics counters must have incremented
-  assert.equal(updatedData.stats.totalResources, prevResCount + 2)
+  assert.equal(updatedData.stats.totalCourseMaterials, prevResCount + 2)
   assert.equal(updatedData.stats.totalQuestions, prevQCount + 1)
   assert.equal(updatedData.stats.activeCourses, prevActiveCourses + 2)
 
-  // Recent resources should include resource2 (more recent) and resource1
-  const foundRes2 = updatedData.recentResources.find(
+  // Recent course materials should include resource2 (more recent) and resource1
+  const foundRes2 = updatedData.recentCourseMaterials.find(
     (r) => r.id === resource2Id
   )
-  assert.ok(foundRes2, "resource2 should appear in recent resources feed")
+  assert.ok(
+    foundRes2,
+    "resource2 should appear in recent course materials feed"
+  )
   assert.equal(foundRes2.title, "Algorithms Lecture 1 Notes")
   assert.equal(foundRes2.courseCode, `CS${String(suffix).slice(-4)}A`)
-  assert.equal(foundRes2.resourceType, "notes")
+  assert.equal(foundRes2.courseMaterialType, "notes")
   assert.equal(foundRes2.academicPeriod, "2024/2025 semester 1")
 
   // Recent/active questions should include question1

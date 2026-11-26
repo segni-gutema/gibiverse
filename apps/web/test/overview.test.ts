@@ -54,7 +54,6 @@ test("overview falls back safely on network failure without throwing", async () 
       res && res.ok ? await res.json() : DEFAULT_PLATFORM_OVERVIEW
     assert.deepEqual(fallback.stats, {
       totalCourseMaterials: 0,
-      totalResources: 0,
       totalQuestions: 0,
       activeCourses: 0,
     })
@@ -68,15 +67,15 @@ test("overview falls back safely on network failure without throwing", async () 
 test("overview returns parsed JSON payload when response is ok", async () => {
   const mockPayload = {
     stats: {
-      totalResources: 34,
+      totalCourseMaterials: 34,
       totalQuestions: 18,
       activeCourses: 7,
     },
-    recentResources: [
+    recentCourseMaterials: [
       {
-        id: "res-1",
+        id: "cm-1",
         title: "Calculus Exam Solutions",
-        resourceType: "exam" as const,
+        courseMaterialType: "exam" as const,
         academicPeriod: "2024/2025 semester 1",
         createdAt: "2026-11-13T08:00:00.000Z",
         courseId: "c-1",
@@ -114,8 +113,11 @@ test("overview returns parsed JSON payload when response is ok", async () => {
     assert.ok(res.ok)
     const result = await res.json()
     assert.deepEqual(result.stats, mockPayload.stats)
-    assert.equal(result.recentResources.length, 1)
-    assert.equal(result.recentResources[0]?.title, "Calculus Exam Solutions")
+    assert.equal(result.recentCourseMaterials.length, 1)
+    assert.equal(
+      result.recentCourseMaterials[0]?.title,
+      "Calculus Exam Solutions"
+    )
     assert.equal(result.recentQuestions.length, 1)
     assert.equal(result.recentQuestions[0]?.studentName, "Ada Lovelace")
   } finally {

@@ -18,7 +18,6 @@ type ReturnedMaterial = {
   id: string
   title: string
   courseMaterialType: string
-  resourceType: string
   academicPeriod: string
   createdAt: Date | string
   courseId: string
@@ -84,11 +83,11 @@ const search = new Hono().get(
         type,
         counts: {
           all: 0,
-          resources: 0,
+          courseMaterials: 0,
           questions: 0,
           courses: 0,
         },
-        resources: [],
+        courseMaterials: [],
         questions: [],
         courses: [],
       })
@@ -115,7 +114,7 @@ const search = new Hono().get(
 
     // --- Tab-Specific Filter Conditions (never applied on "all" overview tab) ---
     const materialFilterConditions: SQL[] = [materialBaseCondition]
-    if (type === "resources") {
+    if (type === "course-materials") {
       if (courseMaterialType) {
         materialFilterConditions.push(
           eq(courseMaterial.courseMaterialType, courseMaterialType)
@@ -175,7 +174,7 @@ const search = new Hono().get(
 
     const counts = {
       all: totalMaterials + totalQuestions + totalCourses,
-      resources: totalMaterials,
+      courseMaterials: totalMaterials,
       questions: totalQuestions,
       courses: totalCourses,
     }
@@ -185,13 +184,12 @@ const search = new Hono().get(
     let returnedQuestions: ReturnedQuestion[] = []
     let returnedCourses: ReturnedCourse[] = []
 
-    if (type === "all" || type === "resources") {
+    if (type === "all" || type === "course-materials") {
       const rows = await db
         .select({
           id: courseMaterial.id,
           title: courseMaterial.title,
           courseMaterialType: courseMaterial.courseMaterialType,
-          resourceType: courseMaterial.courseMaterialType,
           academicPeriod: courseMaterial.academicPeriod,
           createdAt: courseMaterial.createdAt,
           courseId: courseMaterial.courseId,
@@ -311,7 +309,7 @@ const search = new Hono().get(
       query: q,
       type,
       counts,
-      resources: returnedMaterials,
+      courseMaterials: returnedMaterials,
       questions: returnedQuestions,
       courses: returnedCourses,
     })

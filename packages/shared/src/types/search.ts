@@ -7,7 +7,7 @@ import { questionSortSchema } from "./qa.js"
  */
 export const SEARCH_TYPES = [
   "all",
-  "resources",
+  "course-materials",
   "questions",
   "courses",
 ] as const

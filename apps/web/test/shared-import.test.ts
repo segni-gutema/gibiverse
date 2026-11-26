@@ -13,7 +13,7 @@ test("apps/web can import and use @gibiverse/shared subpaths", () => {
   assert.equal(parsed, "2026/2027 semester 2")
   assert.equal(formatAcademicPeriod(parsed), "2026/2027 Semester 2")
 
-  const searchType: SearchType = "resources"
+  const searchType: SearchType = "course-materials"
   const parsedSearchType = searchTypeSchema.parse(searchType)
-  assert.equal(parsedSearchType, "resources")
+  assert.equal(parsedSearchType, "course-materials")
 })

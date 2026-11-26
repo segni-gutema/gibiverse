@@ -7,7 +7,12 @@ import {
 } from "../src/types/search.js"
 
 test("SEARCH_TYPES contains expected domain search categories", () => {
-  assert.deepEqual(SEARCH_TYPES, ["all", "resources", "questions", "courses"])
+  assert.deepEqual(SEARCH_TYPES, [
+    "all",
+    "course-materials",
+    "questions",
+    "courses",
+  ])
 })
 
 test("searchTypeSchema validates valid search types and rejects invalid strings", () => {
@@ -37,13 +42,13 @@ test("searchQuerySchema parses query parameters and provides default values", ()
   // Valid params are preserved
   const validParsed = searchQuerySchema.safeParse({
     q: "quantum",
-    type: "resources",
+    type: "course-materials",
   })
   assert.equal(validParsed.success, true)
   if (validParsed.success) {
     assert.deepEqual(validParsed.data, {
       q: "quantum",
-      type: "resources",
+      type: "course-materials",
     })
   }
 

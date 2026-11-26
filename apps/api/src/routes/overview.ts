@@ -28,7 +28,6 @@ const overview = new Hono().get("/", async (c) => {
         id: courseMaterial.id,
         title: courseMaterial.title,
         courseMaterialType: courseMaterial.courseMaterialType,
-        resourceType: courseMaterial.courseMaterialType,
         academicPeriod: courseMaterial.academicPeriod,
         createdAt: courseMaterial.createdAt,
         courseId: courseMaterial.courseId,
@@ -76,12 +75,10 @@ const overview = new Hono().get("/", async (c) => {
   return c.json({
     stats: {
       totalCourseMaterials,
-      totalResources: totalCourseMaterials,
       totalQuestions,
       activeCourses,
     },
     recentCourseMaterials,
-    recentResources: recentCourseMaterials,
     recentQuestions,
   })
 })

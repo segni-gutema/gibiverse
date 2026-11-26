@@ -27,11 +27,11 @@ type SearchResponse = {
   type: string
   counts: {
     all: number
-    resources: number
+    courseMaterials: number
     questions: number
     courses?: number
   }
-  resources: Array<{
+  courseMaterials: Array<{
     id: string
     title: string
     courseCode: string
@@ -167,11 +167,11 @@ test("GET /api/search with empty query returns 0 counts and empty results", asyn
   assert.equal(body.type, "all")
   assert.deepEqual(body.counts, {
     all: 0,
-    resources: 0,
+    courseMaterials: 0,
     questions: 0,
     courses: 0,
   })
-  assert.deepEqual(body.resources, [])
+  assert.deepEqual(body.courseMaterials, [])
   assert.deepEqual(body.questions, [])
   assert.deepEqual(body.courses, [])
 })
@@ -181,8 +181,8 @@ test("GET /api/search matches resource title and question body case-insensitivel
   const resRes = await app.request("/api/search?q=QUANTUM")
   assert.equal(resRes.status, 200)
   const resBody = (await resRes.json()) as SearchResponse
-  assert.equal(resBody.counts.resources, 1)
-  assert.equal(resBody.resources[0].id, resourceCsId)
+  assert.equal(resBody.counts.courseMaterials, 1)
+  assert.equal(resBody.courseMaterials[0].id, resourceCsId)
 
   // "normalising" is in questionMath body ("Need clarification on normalising eigenvectors")
   const qRes = await app.request("/api/search?q=NoRmAlIsInG")
@@ -198,10 +198,10 @@ test("GET /api/search matches course code for resources, questions, and courses"
   assert.equal(res.status, 200)
   const body = (await res.json()) as SearchResponse
   assert.equal(body.counts.all, 3)
-  assert.equal(body.counts.resources, 1)
+  assert.equal(body.counts.courseMaterials, 1)
   assert.equal(body.counts.questions, 1)
   assert.equal(body.counts.courses, 1)
-  assert.equal(body.resources[0].id, resourceCsId)
+  assert.equal(body.courseMaterials[0].id, resourceCsId)
   assert.equal(body.questions[0].id, questionCsId)
   assert.equal(body.courses?.[0].id, courseCsId)
   assert.equal(body.courses?.[0].materialsCount, 1)
@@ -213,63 +213,65 @@ test("GET /api/search filters by search type: courses, resources, and questions"
   const allRes = await app.request("/api/search?q=quantum&type=all")
   assert.equal(allRes.status, 200)
   const allBody = (await allRes.json()) as SearchResponse
-  assert.equal(allBody.counts.resources, 1)
+  assert.equal(allBody.counts.courseMaterials, 1)
   assert.equal(allBody.counts.questions, 1)
   assert.equal(allBody.counts.courses, 1)
   assert.equal(allBody.counts.all, 3)
-  assert.equal(allBody.resources.length, 1)
+  assert.equal(allBody.courseMaterials.length, 1)
   assert.equal(allBody.questions.length, 1)
   assert.equal(allBody.courses?.length, 1)
 
-  // type=courses returns courses array populated and resources/questions empty
+  // type=courses returns courses array populated and courseMaterials/questions empty
   const cRes = await app.request("/api/search?q=quantum&type=courses")
   assert.equal(cRes.status, 200)
   const cBody = (await cRes.json()) as SearchResponse
   assert.equal(cBody.type, "courses")
   assert.equal(cBody.counts.courses, 1)
-  assert.equal(cBody.counts.resources, 1)
+  assert.equal(cBody.counts.courseMaterials, 1)
   assert.equal(cBody.counts.questions, 1)
   assert.equal(cBody.courses?.length, 1)
   assert.equal(cBody.courses?.[0].id, courseCsId)
-  assert.equal(cBody.resources.length, 0)
+  assert.equal(cBody.courseMaterials.length, 0)
   assert.equal(cBody.questions.length, 0)
 
-  // type=resources returns resources array populated and questions/courses empty
-  const resRes = await app.request("/api/search?q=quantum&type=resources")
+  // type=course-materials returns courseMaterials array populated and questions/courses empty
+  const resRes = await app.request(
+    "/api/search?q=quantum&type=course-materials"
+  )
   assert.equal(resRes.status, 200)
   const resBody = (await resRes.json()) as SearchResponse
-  assert.equal(resBody.type, "resources")
-  assert.equal(resBody.counts.resources, 1)
-  assert.equal(resBody.resources.length, 1)
+  assert.equal(resBody.type, "course-materials")
+  assert.equal(resBody.counts.courseMaterials, 1)
+  assert.equal(resBody.courseMaterials.length, 1)
   assert.equal(resBody.questions.length, 0)
   assert.equal(resBody.courses?.length, 0)
 
-  // type=questions returns questions array populated and resources/courses empty
+  // type=questions returns questions array populated and courseMaterials/courses empty
   const qRes = await app.request("/api/search?q=quantum&type=questions")
   assert.equal(qRes.status, 200)
   const qBody = (await qRes.json()) as SearchResponse
   assert.equal(qBody.type, "questions")
   assert.equal(qBody.counts.questions, 1)
   assert.equal(qBody.questions.length, 1)
-  assert.equal(qBody.resources.length, 0)
+  assert.equal(qBody.courseMaterials.length, 0)
   assert.equal(qBody.courses?.length, 0)
 })
 
-test("GET /api/search applies tab-specific filters for resources and courses", async () => {
-  // Filter resources by courseMaterialType: "notes" matches resourceCs, "exam" matches 0 for "quantum"
+test("GET /api/search applies tab-specific filters for course-materials and courses", async () => {
+  // Filter course materials by courseMaterialType: "notes" matches resourceCs, "exam" matches 0 for "quantum"
   const notesRes = await app.request(
-    "/api/search?q=quantum&type=resources&courseMaterialType=notes"
+    "/api/search?q=quantum&type=course-materials&courseMaterialType=notes"
   )
   assert.equal(notesRes.status, 200)
   const notesBody = (await notesRes.json()) as SearchResponse
-  assert.equal(notesBody.resources.length, 1)
+  assert.equal(notesBody.courseMaterials.length, 1)
 
   const examRes = await app.request(
-    "/api/search?q=quantum&type=resources&courseMaterialType=exam"
+    "/api/search?q=quantum&type=course-materials&courseMaterialType=exam"
   )
   assert.equal(examRes.status, 200)
   const examBody = (await examRes.json()) as SearchResponse
-  assert.equal(examBody.resources.length, 0)
+  assert.equal(examBody.courseMaterials.length, 0)
 
   // Filter courses by universityId
   const uniMatchRes = await app.request(
@@ -309,5 +311,5 @@ test("GET /api/search applies tab-specific filters for resources and courses", a
   )
   assert.equal(allWithFilterRes.status, 200)
   const allWithFilterBody = (await allWithFilterRes.json()) as SearchResponse
-  assert.equal(allWithFilterBody.resources.length, 1)
+  assert.equal(allWithFilterBody.courseMaterials.length, 1)
 })
