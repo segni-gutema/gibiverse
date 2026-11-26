@@ -3,7 +3,7 @@ import pluginNext from "@next/eslint-plugin-next"
 import pluginReactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
 
-import { config as baseConfig } from "./base.js"
+import { config as baseConfig, baseRestrictedSyntax } from "./base.js"
 
 /**
  * A custom ESLint configuration for libraries that use Next.js.
@@ -43,6 +43,7 @@ export const nextJsConfig = [
     rules: {
       "no-restricted-syntax": [
         "error",
+        ...baseRestrictedSyntax,
         {
           selector:
             "JSXOpeningElement[name.name='Button']:has(JSXAttribute[name.name='render']):not(:has(JSXAttribute[name.name='nativeButton']))",

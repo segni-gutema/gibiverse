@@ -65,12 +65,7 @@ const overview = new Hono().get("/", async (c) => {
 
   const totalCourseMaterials = Number(materialsCountResult[0]?.count ?? 0)
   const totalQuestions = Number(questionsCountResult[0]?.count ?? 0)
-  const activeCoursesRaw =
-    (activeCoursesResult as { rows?: Array<{ count?: string | number }> })
-      .rows?.[0]?.count ??
-    (activeCoursesResult as unknown as Array<{ count?: string | number }>)[0]
-      ?.count
-  const activeCourses = Number(activeCoursesRaw ?? 0)
+  const activeCourses = extractCount(activeCoursesResult)
 
   return c.json({
     stats: {
@@ -82,5 +77,22 @@ const overview = new Hono().get("/", async (c) => {
     recentQuestions,
   })
 })
+
+function extractCount(result: unknown): number {
+  const row = Array.isArray(result)
+    ? result[0]
+    : result &&
+        typeof result === "object" &&
+        "rows" in result &&
+        Array.isArray(result.rows)
+      ? result.rows[0]
+      : undefined
+
+  if (row && typeof row === "object" && "count" in row) {
+    return Number(row.count ?? 0)
+  }
+
+  return 0
+}
 
 export { overview }

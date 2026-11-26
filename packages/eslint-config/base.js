@@ -3,6 +3,14 @@ import eslintConfigPrettier from "eslint-config-prettier"
 import turboPlugin from "eslint-plugin-turbo"
 import tseslint from "typescript-eslint"
 
+export const baseRestrictedSyntax = [
+  {
+    selector: "TSAsExpression > TSUnknownKeyword",
+    message:
+      "Avoid `as unknown` type escapes; narrow or type the boundary properly instead.",
+  },
+]
+
 /**
  * A shared ESLint configuration for the repository.
  *
@@ -22,6 +30,7 @@ export const config = [
     },
     rules: {
       "turbo/no-undeclared-env-vars": "warn",
+      "no-restricted-syntax": ["error", ...baseRestrictedSyntax],
     },
   },
   {
