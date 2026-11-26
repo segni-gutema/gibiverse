@@ -182,14 +182,14 @@ test("GET /api/search matches resource title and question body case-insensitivel
   assert.equal(resRes.status, 200)
   const resBody = (await resRes.json()) as SearchResponse
   assert.equal(resBody.counts.courseMaterials, 1)
-  assert.equal(resBody.courseMaterials[0].id, resourceCsId)
+  assert.equal(resBody.courseMaterials[0]?.id, resourceCsId)
 
   // "normalising" is in questionMath body ("Need clarification on normalising eigenvectors")
   const qRes = await app.request("/api/search?q=NoRmAlIsInG")
   assert.equal(qRes.status, 200)
   const qBody = (await qRes.json()) as SearchResponse
   assert.equal(qBody.counts.questions, 1)
-  assert.equal(qBody.questions[0].id, questionMathId)
+  assert.equal(qBody.questions[0]?.id, questionMathId)
 })
 
 test("GET /api/search matches course code for resources, questions, and courses", async () => {
@@ -201,11 +201,11 @@ test("GET /api/search matches course code for resources, questions, and courses"
   assert.equal(body.counts.courseMaterials, 1)
   assert.equal(body.counts.questions, 1)
   assert.equal(body.counts.courses, 1)
-  assert.equal(body.courseMaterials[0].id, resourceCsId)
-  assert.equal(body.questions[0].id, questionCsId)
-  assert.equal(body.courses?.[0].id, courseCsId)
-  assert.equal(body.courses?.[0].materialsCount, 1)
-  assert.equal(body.courses?.[0].questionsCount, 1)
+  assert.equal(body.courseMaterials[0]?.id, resourceCsId)
+  assert.equal(body.questions[0]?.id, questionCsId)
+  assert.equal(body.courses?.[0]?.id, courseCsId)
+  assert.equal(body.courses?.[0]?.materialsCount, 1)
+  assert.equal(body.courses?.[0]?.questionsCount, 1)
 })
 
 test("GET /api/search filters by search type: courses, resources, and questions", async () => {
@@ -230,7 +230,7 @@ test("GET /api/search filters by search type: courses, resources, and questions"
   assert.equal(cBody.counts.courseMaterials, 1)
   assert.equal(cBody.counts.questions, 1)
   assert.equal(cBody.courses?.length, 1)
-  assert.equal(cBody.courses?.[0].id, courseCsId)
+  assert.equal(cBody.courses?.[0]?.id, courseCsId)
   assert.equal(cBody.courseMaterials.length, 0)
   assert.equal(cBody.questions.length, 0)
 
@@ -295,7 +295,7 @@ test("GET /api/search applies tab-specific filters for course-materials and cour
   assert.equal(unansweredRes.status, 200)
   const unansweredBody = (await unansweredRes.json()) as SearchResponse
   assert.equal(unansweredBody.questions.length, 1)
-  assert.equal(unansweredBody.questions[0].id, questionCsId)
+  assert.equal(unansweredBody.questions[0]?.id, questionCsId)
 
   // type=courses supports qa-desc and materials-desc sort options
   const qaSortRes = await app.request(

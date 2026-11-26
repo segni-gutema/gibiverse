@@ -227,6 +227,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
     .select({ voteScore: question.voteScore })
     .from(question)
     .where(eq(question.id, testQuestionId))
+  assert.ok(q1)
   assert.strictEqual(q1.voteScore, 1)
 
   // 2. Toggle Off: Re-clicking +1 removes vote
@@ -246,6 +247,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
     .select({ voteScore: question.voteScore })
     .from(question)
     .where(eq(question.id, testQuestionId))
+  assert.ok(q2)
   assert.strictEqual(q2.voteScore, 0)
 
   // 3. Downvote (-1)
@@ -347,6 +349,7 @@ test("voting.cast() serializes concurrent votes from multiple users without HTTP
     .select({ voteScore: question.voteScore })
     .from(question)
     .where(eq(question.id, testQuestionId))
+  assert.ok(qRow)
   assert.strictEqual(qRow.voteScore, 2)
 
   // Concurrent toggle off for all 4 users
@@ -369,5 +372,6 @@ test("voting.cast() serializes concurrent votes from multiple users without HTTP
     .select({ voteScore: question.voteScore })
     .from(question)
     .where(eq(question.id, testQuestionId))
+  assert.ok(qRowAfter)
   assert.strictEqual(qRowAfter.voteScore, 0)
 })

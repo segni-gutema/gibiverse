@@ -50,6 +50,7 @@ test("Student authentication lifecycle: sign-in, session query, and sign-out", a
 
   // Extract the raw cookie string for cookie header
   const cookieHeader = sessionCookie.split(";")[0]
+  assert.ok(cookieHeader, "Session cookie must have a value")
 
   // 3. Get session with cookie
   const sessionRes = await app.request("/api/auth/get-session", {
@@ -92,7 +93,7 @@ test("requireAuth middleware blocks unauthenticated requests and permits authent
     method: "POST",
   })
   assert.strictEqual(unauthRes.status, 401)
-  const unauthBody = await unauthRes.json()
+  const unauthBody = (await unauthRes.json()) as { error?: string }
   assert.strictEqual(unauthBody.error, "Unauthorized")
 
   // 2. Authenticated request with session cookie should be 200
@@ -105,6 +106,7 @@ test("requireAuth middleware blocks unauthenticated requests and permits authent
   })
   const setCookie = signUpRes.headers.get("set-cookie")!
   const cookieHeader = setCookie.split(";")[0]
+  assert.ok(cookieHeader, "Sign-up must return session cookie")
 
   const authRes = await app.request("/api/test-protected", {
     method: "POST",
@@ -113,7 +115,10 @@ test("requireAuth middleware blocks unauthenticated requests and permits authent
     },
   })
   assert.strictEqual(authRes.status, 200)
-  const authBody = await authRes.json()
+  const authBody = (await authRes.json()) as {
+    success?: boolean
+    studentId?: string
+  }
   assert.strictEqual(authBody.success, true)
   assert.ok(authBody.studentId)
 })
@@ -124,7 +129,10 @@ test("optionalAuth middleware provides student context when present and allows a
     method: "GET",
   })
   assert.strictEqual(anonRes.status, 200)
-  const anonBody = await anonRes.json()
+  const anonBody = (await anonRes.json()) as {
+    authenticated?: boolean
+    student?: unknown
+  }
   assert.strictEqual(anonBody.authenticated, false)
   assert.strictEqual(anonBody.student, null)
 
@@ -138,6 +146,7 @@ test("optionalAuth middleware provides student context when present and allows a
   })
   const setCookie = signUpRes.headers.get("set-cookie")!
   const cookieHeader = setCookie.split(";")[0]
+  assert.ok(cookieHeader, "Sign-up must return session cookie")
 
   const authRes = await app.request("/api/test-public", {
     method: "GET",
@@ -146,9 +155,12 @@ test("optionalAuth middleware provides student context when present and allows a
     },
   })
   assert.strictEqual(authRes.status, 200)
-  const authBody = await authRes.json()
+  const authBody = (await authRes.json()) as {
+    authenticated?: boolean
+    student?: { email?: string } | null
+  }
   assert.strictEqual(authBody.authenticated, true)
-  assert.strictEqual(authBody.student.email, email)
+  assert.strictEqual(authBody.student?.email, email)
 })
 
 test("POST /api/auth/sign-in/social initiates Google OAuth flow with redirect url", async () => {
@@ -194,6 +206,7 @@ test("Auth endpoints accept requests from frontend origin http://localhost:3001"
   )
   const sessionCookie = signUpRes.headers.get("set-cookie")!
   const cookieHeader = sessionCookie.split(";")[0]
+  assert.ok(cookieHeader, "Sign-up must return session cookie")
 
   // 2. Sign in with origin: http://localhost:3001
   const signInRes = await app.request("/api/auth/sign-in/email", {
