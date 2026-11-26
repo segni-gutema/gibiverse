@@ -163,11 +163,7 @@ export function formatQuestionsCount(count: number): {
   isZero: boolean
 } {
   const isZero = count === 0
-  const label = isZero
-    ? "0 Q&As"
-    : count === 1
-      ? "1 Q&A"
-      : `${count} Q&As`
+  const label = isZero ? "0 Q&As" : count === 1 ? "1 Q&A" : `${count} Q&As`
   return { label, count, isZero }
 }
 
@@ -217,9 +213,13 @@ export function filterPrototypeCourses(
   return filtered.sort((a, b) => {
     switch (sortBy) {
       case "materials-desc":
-        return b.materialsCount - a.materialsCount || a.code.localeCompare(b.code)
+        return (
+          b.materialsCount - a.materialsCount || a.code.localeCompare(b.code)
+        )
       case "qa-desc":
-        return b.questionsCount - a.questionsCount || a.code.localeCompare(b.code)
+        return (
+          b.questionsCount - a.questionsCount || a.code.localeCompare(b.code)
+        )
       case "code-asc":
       default:
         return a.code.localeCompare(b.code)
@@ -292,7 +292,8 @@ export const PROTOTYPE_COURSES: CourseCardData[] = [
       },
       {
         id: "q-102",
-        title: "Clarification on Lab 3 question regarding memory leak in linked lists",
+        title:
+          "Clarification on Lab 3 question regarding memory leak in linked lists",
         votes: 7,
         answersCount: 2,
         hasAcceptedAnswer: false,

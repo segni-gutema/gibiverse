@@ -6,7 +6,9 @@ type QuestionPageProps = {
   params: Promise<{ id: string }>
 }
 
-export default async function QuestionDetailPage({ params }: QuestionPageProps) {
+export default async function QuestionDetailPage({
+  params,
+}: QuestionPageProps) {
   const { id } = await params
   const res = await client.api.questions[":id"]
     .$get({

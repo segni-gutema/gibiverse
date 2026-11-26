@@ -1,4 +1,7 @@
-import { formatAcademicPeriod, formatRelativeUploadDate } from "@/lib/formatters"
+import {
+  formatAcademicPeriod,
+  formatRelativeUploadDate,
+} from "@/lib/formatters"
 import type { CourseMaterialType, Semester } from "@gibiverse/shared/types"
 
 export { formatAcademicPeriod, formatRelativeUploadDate }
@@ -29,12 +32,14 @@ export type CatalogCourseMaterial = {
   thumbnailPath?: string | null
 }
 
-export function hasActiveCatalogFilters(filters: CourseMaterialFilters): boolean {
+export function hasActiveCatalogFilters(
+  filters: CourseMaterialFilters
+): boolean {
   return Boolean(
     filters.courseMaterialType ||
-      filters.universityId ||
-      filters.departmentId ||
-      filters.courseId
+    filters.universityId ||
+    filters.departmentId ||
+    filters.courseId
   )
 }
 
@@ -88,10 +93,7 @@ export type CourseMaterialDetail = {
 }
 
 export type CourseMaterialPreviewType =
-  | "pdf"
-  | "docx"
-  | "image"
-  | "download-only"
+  "pdf" | "docx" | "image" | "download-only"
 
 export const UPLOAD_COURSE_MATERIAL_PATH = "/course-materials/upload"
 

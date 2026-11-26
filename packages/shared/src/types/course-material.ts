@@ -72,14 +72,15 @@ export const ALLOWED_MIME_TYPES = [
 /**
  * UI Pill labels for CourseMaterialType.
  */
-export const courseMaterialTypePillLabels: Record<CourseMaterialType, string> = {
-  exam: "Exam",
-  notes: "Notes",
-  slides: "Slides",
-  assignment: "Assignment",
-  lab: "Lab",
-  other: "Other",
-}
+export const courseMaterialTypePillLabels: Record<CourseMaterialType, string> =
+  {
+    exam: "Exam",
+    notes: "Notes",
+    slides: "Slides",
+    assignment: "Assignment",
+    lab: "Lab",
+    other: "Other",
+  }
 
 /**
  * Select options for CourseMaterialType.
@@ -109,7 +110,9 @@ export type AcademicPeriodOption = {
 /**
  * Generates curated rolling academic period choices (defaults to current academic cycle and 5 prior cycles).
  */
-export function academicPeriodOptions(now = new Date()): AcademicPeriodOption[] {
+export function academicPeriodOptions(
+  now = new Date()
+): AcademicPeriodOption[] {
   const current = now.getFullYear()
   const options: AcademicPeriodOption[] = []
   for (let i = 0; i < 6; i++) {

@@ -121,8 +121,14 @@ test("sanitizeTitleFromFilename removes extensions and capitalizes words", () =>
 test("detectCourseMaterialType detects course material type from filename keywords", () => {
   assert.strictEqual(detectCourseMaterialType("midterm-exam.pdf"), "exam")
   assert.strictEqual(detectCourseMaterialType("quiz1-practice.pdf"), "exam")
-  assert.strictEqual(detectCourseMaterialType("lecture-slides-ch03.pptx"), "slides")
-  assert.strictEqual(detectCourseMaterialType("chapter-summary-notes.pdf"), "notes")
+  assert.strictEqual(
+    detectCourseMaterialType("lecture-slides-ch03.pptx"),
+    "slides"
+  )
+  assert.strictEqual(
+    detectCourseMaterialType("chapter-summary-notes.pdf"),
+    "notes"
+  )
   assert.strictEqual(
     detectCourseMaterialType("homework-1-assignment.docx"),
     "assignment"

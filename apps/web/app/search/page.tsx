@@ -43,7 +43,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const initialFilters: SearchFilterParams = {
     universityId: type !== "all" ? params.universityId?.trim() || null : null,
-    departmentId: type === "courses" ? params.departmentId?.trim() || null : null,
+    departmentId:
+      type === "courses" ? params.departmentId?.trim() || null : null,
     courseId:
       type === "resources" || type === "questions"
         ? params.courseId?.trim() || null
@@ -89,7 +90,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
     if (univRes && univRes.ok) universities = await univRes.json()
     if (deptRes && deptRes.ok) departments = await deptRes.json()
-    if (courseRes && courseRes.ok) courses = (await courseRes.json()) as Course[]
+    if (courseRes && courseRes.ok)
+      courses = (await courseRes.json()) as Course[]
     if (searchRes && searchRes.ok) {
       data = (await searchRes.json()) as SearchResponse
     }

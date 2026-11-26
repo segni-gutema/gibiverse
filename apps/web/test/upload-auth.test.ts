@@ -19,7 +19,9 @@ test("getUploadSignInHref encodes callback URL for upload", () => {
 })
 
 test("Unauthenticated Upload Course Material deep link redirects to sign-in with callbackUrl", () => {
-  const req = new NextRequest(`http://localhost:3000${UPLOAD_COURSE_MATERIAL_PATH}`)
+  const req = new NextRequest(
+    `http://localhost:3000${UPLOAD_COURSE_MATERIAL_PATH}`
+  )
   const res = proxy(req)
 
   assert.strictEqual(res.status, 307)

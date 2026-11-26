@@ -18,4 +18,3 @@ export const client: Client = createClient()
 
 export type { Client }
 export type { InferResponseType, InferRequestType } from "hono/client"
-

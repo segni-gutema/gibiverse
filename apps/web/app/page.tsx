@@ -34,10 +34,8 @@ export default async function HomePage() {
   const heroState = getOverviewEmptyState(overview.stats)
   const recentMaterialsEmpty = getRecentCourseMaterialsEmptyState()
   const recentQuestionsEmpty = getRecentQuestionsEmptyState()
-  const totalMaterials =
-    overview.stats.totalCourseMaterials ?? 0
-  const recentMaterials =
-    overview.recentCourseMaterials ?? []
+  const totalMaterials = overview.stats.totalCourseMaterials ?? 0
+  const recentMaterials = overview.recentCourseMaterials ?? []
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
@@ -80,10 +78,7 @@ export default async function HomePage() {
         </section>
 
         {/* Platform Activity Counters */}
-        <section
-          aria-labelledby="platform-stats-heading"
-          className="space-y-4"
-        >
+        <section aria-labelledby="platform-stats-heading" className="space-y-4">
           <h2 id="platform-stats-heading" className="sr-only">
             Platform Activity Statistics
           </h2>
@@ -145,10 +140,7 @@ export default async function HomePage() {
         </section>
 
         {/* Quick Navigation Shortcut Cards — Course Materials and Q&A */}
-        <section
-          aria-labelledby="shortcuts-heading"
-          className="space-y-4"
-        >
+        <section aria-labelledby="shortcuts-heading" className="space-y-4">
           <div className="flex flex-col gap-1">
             <h2
               id="shortcuts-heading"
@@ -167,7 +159,7 @@ export default async function HomePage() {
           >
             <Link
               href="/course-materials"
-              className="group flex flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group flex flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               data-testid="shortcut-card-course-materials"
             >
               <div className="space-y-3">
@@ -190,7 +182,7 @@ export default async function HomePage() {
 
             <Link
               href="/questions"
-              className="group flex flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group flex flex-col justify-between rounded-xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               data-testid="shortcut-card-questions"
             >
               <div className="space-y-3">
@@ -214,10 +206,7 @@ export default async function HomePage() {
         </section>
 
         {/* Activity Feeds: Recent Course Materials & Active Questions */}
-        <section
-          aria-labelledby="activity-feeds-heading"
-          className="space-y-4"
-        >
+        <section aria-labelledby="activity-feeds-heading" className="space-y-4">
           <h2 id="activity-feeds-heading" className="sr-only">
             Platform Activity Feeds
           </h2>
@@ -270,12 +259,15 @@ export default async function HomePage() {
                     <li key={res.id}>
                       <Link
                         href={`/course-materials/${res.id}`}
-                        className="group flex flex-col gap-2 p-4 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
+                        className="group flex flex-col gap-2 p-4 transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:flex-row sm:items-center sm:justify-between"
                         data-testid={`recent-course-material-${res.id}`}
                       >
                         <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="secondary" className="font-mono text-xs">
+                            <Badge
+                              variant="secondary"
+                              className="font-mono text-xs"
+                            >
                               {res.courseCode}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
@@ -295,7 +287,10 @@ export default async function HomePage() {
                           <p>
                             {formatAcademicPeriod(res.academicPeriod ?? "")}
                           </p>
-                          <time dateTime={res.createdAt} className="text-muted-foreground/80">
+                          <time
+                            dateTime={res.createdAt}
+                            className="text-muted-foreground/80"
+                          >
                             {formatRelativeUploadDate(res.createdAt)}
                           </time>
                         </div>
@@ -353,12 +348,15 @@ export default async function HomePage() {
                     <li key={q.id}>
                       <Link
                         href={`/questions/${q.id}`}
-                        className="group flex flex-col gap-2 p-4 transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:justify-between"
+                        className="group flex flex-col gap-2 p-4 transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:flex-row sm:items-center sm:justify-between"
                         data-testid={`recent-question-${q.id}`}
                       >
                         <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="secondary" className="font-mono text-xs">
+                            <Badge
+                              variant="secondary"
+                              className="font-mono text-xs"
+                            >
                               {q.courseCode}
                             </Badge>
                             <Badge
@@ -383,8 +381,13 @@ export default async function HomePage() {
                           </p>
                         </div>
                         <div className="shrink-0 text-xs text-muted-foreground sm:text-right">
-                          <p className="truncate font-medium">{q.studentName}</p>
-                          <time dateTime={q.createdAt} className="text-muted-foreground/80">
+                          <p className="truncate font-medium">
+                            {q.studentName}
+                          </p>
+                          <time
+                            dateTime={q.createdAt}
+                            className="text-muted-foreground/80"
+                          >
                             {formatRelativeUploadDate(q.createdAt)}
                           </time>
                         </div>

@@ -9,6 +9,7 @@
     "test": "turbo test",
     "check-glossary": "tsx scripts/check-glossary.ts",
     "format": "turbo format",
+    "format:check": "turbo format:check",
     "typecheck": "turbo typecheck",
     "prepare": "simple-git-hooks"
   },
@@ -28,6 +29,6 @@
     "node": ">=20.9.0"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm turbo lint typecheck && pnpm check-glossary"
+    "pre-commit": "pnpm turbo lint typecheck format:check && pnpm check-glossary"
   }
 }

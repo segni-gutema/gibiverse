@@ -292,8 +292,8 @@ export function SearchClient({
 
   const hasActiveMaterialFilters = Boolean(
     materialFilters.courseMaterialType ||
-      materialFilters.universityId ||
-      materialFilters.courseId
+    materialFilters.universityId ||
+    materialFilters.courseId
   )
 
   // --- Questions Filter Handlers ---
@@ -321,8 +321,8 @@ export function SearchClient({
 
   const hasActiveQuestionFilters = Boolean(
     questionFilters.sort !== "newest" ||
-      questionFilters.universityId ||
-      questionFilters.courseId
+    questionFilters.universityId ||
+    questionFilters.courseId
   )
 
   // --- Courses Filter Handlers ---
@@ -364,20 +364,20 @@ export function SearchClient({
 
   const hasActiveCourseFilters = Boolean(
     courseFilters.universityId !== ALL_OPTION ||
-      courseFilters.departmentId !== ALL_OPTION ||
-      courseFilters.sort !== "code-asc"
+    courseFilters.departmentId !== ALL_OPTION ||
+    courseFilters.sort !== "code-asc"
   )
 
   const selectedCourseUniName =
     courseFilters.universityId !== ALL_OPTION
-      ? universities.find((u) => u.id === courseFilters.universityId)?.name ??
-        null
+      ? (universities.find((u) => u.id === courseFilters.universityId)?.name ??
+        null)
       : null
 
   const selectedCourseDeptName =
     courseFilters.departmentId !== ALL_OPTION
-      ? departments.find((d) => d.id === courseFilters.departmentId)?.name ??
-        null
+      ? (departments.find((d) => d.id === courseFilters.departmentId)?.name ??
+        null)
       : null
 
   const emptyState = getSearchEmptyState(
@@ -406,14 +406,14 @@ export function SearchClient({
         className="relative flex w-full items-center gap-2"
       >
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
             name="q"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             placeholder="Search course materials, questions, course codes..."
-            className="h-11 w-full rounded-lg pl-11 pr-4 text-base shadow-xs md:text-sm"
+            className="h-11 w-full rounded-lg pr-4 pl-11 text-base shadow-xs md:text-sm"
             aria-label="Search across platform"
             data-testid="search-page-input"
           />
@@ -1115,7 +1115,7 @@ function ResourceGrid({ resources }: { resources: SearchResultResource[] }) {
           <li key={item.id}>
             <Link
               href={`/course-materials/${item.id}`}
-              className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
               data-testid={`search-resource-card-${item.id}`}
             >
               {/* Thumbnail / Icon area matching /course-materials */}
@@ -1218,10 +1218,7 @@ function QuestionGrid({ questions }: { questions: SearchResultQuestion[] }) {
                       </span>
                     </>
                   ) : null}
-                  <Badge
-                    variant="secondary"
-                    className="font-mono text-[11px]"
-                  >
+                  <Badge variant="secondary" className="font-mono text-[11px]">
                     {item.courseCode}
                   </Badge>
                 </div>
@@ -1243,7 +1240,10 @@ function QuestionGrid({ questions }: { questions: SearchResultQuestion[] }) {
               </div>
 
               <h3 className="text-base font-semibold text-foreground transition-colors group-hover:text-primary">
-                <Link href={`/questions/${item.id}`} className="hover:underline">
+                <Link
+                  href={`/questions/${item.id}`}
+                  className="hover:underline"
+                >
                   {item.title}
                 </Link>
               </h3>

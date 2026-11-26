@@ -114,9 +114,7 @@ const academic = new Hono()
   .get("/courses/:id", async (c) => {
     const id = c.req.param("id")
 
-    const rows = await buildCourseQuery()
-      .where(eq(course.id, id))
-      .limit(1)
+    const rows = await buildCourseQuery().where(eq(course.id, id)).limit(1)
 
     const courseData = rows[0]
     if (!courseData) {

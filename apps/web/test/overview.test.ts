@@ -50,7 +50,8 @@ test("overview falls back safely on network failure without throwing", async () 
   }
   try {
     const res = await client.api.overview.$get().catch(() => null)
-    const fallback = res && res.ok ? await res.json() : DEFAULT_PLATFORM_OVERVIEW
+    const fallback =
+      res && res.ok ? await res.json() : DEFAULT_PLATFORM_OVERVIEW
     assert.deepEqual(fallback.stats, {
       totalCourseMaterials: 0,
       totalResources: 0,

@@ -1,10 +1,5 @@
 import { relations } from "drizzle-orm/_relations"
-import {
-  integer,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core"
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 import { course } from "./academic.js"
 import { user } from "./auth.js"
 

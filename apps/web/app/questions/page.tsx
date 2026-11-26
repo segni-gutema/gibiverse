@@ -22,16 +22,15 @@ export default async function QuestionsPage() {
             <MessageSquareQuote className="size-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Course Q&amp;A</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              Course Q&amp;A
+            </h1>
             <p className="text-sm text-muted-foreground">
               Browse academic questions by course and ask peers for help.
             </p>
           </div>
         </div>
-        <AskQuestionButton
-          universities={universities}
-          courses={courses}
-        />
+        <AskQuestionButton universities={universities} courses={courses} />
       </div>
 
       <QuestionCatalogClient

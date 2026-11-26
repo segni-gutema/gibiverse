@@ -181,10 +181,7 @@ test("POST /api/questions/:id/answers creates answer and increments answerCount"
   assert.strictEqual(qRow?.answerCount, 1)
 
   // Verify answer exists in database
-  const [ansRow] = await db
-    .select()
-    .from(answer)
-    .where(eq(answer.id, data.id))
+  const [ansRow] = await db.select().from(answer).where(eq(answer.id, data.id))
   assert.ok(ansRow)
   assert.strictEqual(ansRow.questionId, testQuestionId)
 })
@@ -294,17 +291,14 @@ test("POST /api/questions/:id/accept validates answer belongs to the question", 
   const otherQ = (await otherQRes.json()) as { id: string }
   createdQuestionIds.push(otherQ.id)
 
-  const otherAnsRes = await app.request(
-    `/api/questions/${otherQ.id}/answers`,
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        cookie: respondentCookie,
-      },
-      body: JSON.stringify({ body: "Answer to another question" }),
-    }
-  )
+  const otherAnsRes = await app.request(`/api/questions/${otherQ.id}/answers`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      cookie: respondentCookie,
+    },
+    body: JSON.stringify({ body: "Answer to another question" }),
+  })
   const otherAns = (await otherAnsRes.json()) as { id: string }
 
   // Question author tries to accept an answer from a different question
@@ -323,24 +317,30 @@ test("POST /api/questions/:id/accept validates answer belongs to the question", 
 
 test("question author can accept, change, and unmark an accepted answer", async () => {
   // Post two answers
-  const ans1Res = await app.request(`/api/questions/${testQuestionId}/answers`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      cookie: respondentCookie,
-    },
-    body: JSON.stringify({ body: "Solution 1" }),
-  })
+  const ans1Res = await app.request(
+    `/api/questions/${testQuestionId}/answers`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: respondentCookie,
+      },
+      body: JSON.stringify({ body: "Solution 1" }),
+    }
+  )
   const ans1 = (await ans1Res.json()) as { id: string }
 
-  const ans2Res = await app.request(`/api/questions/${testQuestionId}/answers`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      cookie: respondentCookie,
-    },
-    body: JSON.stringify({ body: "Solution 2 (better)" }),
-  })
+  const ans2Res = await app.request(
+    `/api/questions/${testQuestionId}/answers`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: respondentCookie,
+      },
+      body: JSON.stringify({ body: "Solution 2 (better)" }),
+    }
+  )
   const ans2 = (await ans2Res.json()) as { id: string }
 
   // 1. Author marks ans1 as accepted
@@ -518,5 +518,3 @@ test("GET /api/questions/:id returns question with author, course, and answers i
   assert.strictEqual(detail.answers[1]?.studentName, "Author Student")
   assert.strictEqual(detail.answers[1]?.isAccepted, true)
 })
-
-

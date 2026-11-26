@@ -101,13 +101,8 @@ const courseMaterials = new Hono()
         return c.json({ error: "Unauthorized" }, 401)
       }
 
-      const {
-        title,
-        courseId,
-        courseMaterialType,
-        academicPeriod,
-        file,
-      } = c.req.valid("form")
+      const { title, courseId, courseMaterialType, academicPeriod, file } =
+        c.req.valid("form")
 
       const data = Buffer.from(await file.arrayBuffer())
 

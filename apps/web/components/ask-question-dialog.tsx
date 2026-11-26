@@ -40,7 +40,7 @@ export function AskQuestionDialog({
   const resolvedUnivId =
     initialUniversityId ??
     (initialCourseId
-      ? courses.find((c) => c.id === initialCourseId)?.universityId ?? null
+      ? (courses.find((c) => c.id === initialCourseId)?.universityId ?? null)
       : null)
 
   const [title, setTitle] = React.useState("")

@@ -123,9 +123,7 @@ export function CoursePicker({
           >
             <SelectValue
               placeholder={
-                universityId
-                  ? "Select a course"
-                  : "Choose a university first"
+                universityId ? "Select a course" : "Choose a university first"
               }
             />
           </SelectTrigger>

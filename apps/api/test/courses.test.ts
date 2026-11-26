@@ -139,10 +139,18 @@ before(async () => {
 })
 
 after(async () => {
-  await db.delete(question).where(inArray(question.id, [qId1, qId2, qId3, qId4]))
-  await db.delete(courseMaterial).where(inArray(courseMaterial.id, [matId1, matId2]))
-  await db.delete(course).where(inArray(course.id, [courseId1, courseId2, courseId3]))
-  await db.delete(department).where(inArray(department.id, [deptIdA1, deptIdA2, deptIdB1]))
+  await db
+    .delete(question)
+    .where(inArray(question.id, [qId1, qId2, qId3, qId4]))
+  await db
+    .delete(courseMaterial)
+    .where(inArray(courseMaterial.id, [matId1, matId2]))
+  await db
+    .delete(course)
+    .where(inArray(course.id, [courseId1, courseId2, courseId3]))
+  await db
+    .delete(department)
+    .where(inArray(department.id, [deptIdA1, deptIdA2, deptIdB1]))
   await db.delete(university).where(inArray(university.id, [uniIdA, uniIdB]))
   await db.delete(user).where(eq(user.id, userId))
 })

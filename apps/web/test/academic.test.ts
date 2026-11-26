@@ -39,10 +39,7 @@ const courses: Course[] = [
 
 test("filterCoursesByUniversity returns only courses for the selected university", () => {
   const filtered = filterCoursesByUniversity(courses, "uni_1")
-  assert.deepStrictEqual(
-    filtered.map((c) => c.code).sort(),
-    ["CS101", "CS201"]
-  )
+  assert.deepStrictEqual(filtered.map((c) => c.code).sort(), ["CS101", "CS201"])
 })
 
 test("filterCoursesByUniversity returns empty list when no university is selected", () => {
@@ -52,10 +49,7 @@ test("filterCoursesByUniversity returns empty list when no university is selecte
 
 test("filterCoursesByDepartment returns only courses for the selected department", () => {
   const filtered = filterCoursesByDepartment(courses, "dept_cs")
-  assert.deepStrictEqual(
-    filtered.map((c) => c.code).sort(),
-    ["CS101", "CS201"]
-  )
+  assert.deepStrictEqual(filtered.map((c) => c.code).sort(), ["CS101", "CS201"])
 })
 
 test("filterCoursesByDepartment returns empty list when no department is selected", () => {

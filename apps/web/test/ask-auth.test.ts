@@ -2,7 +2,10 @@ import test from "node:test"
 import assert from "node:assert/strict"
 import { NextRequest } from "next/server.js"
 import { proxy } from "../proxy"
-import { ASK_QUESTION_PATH, getAskSignInHref } from "../app/questions/presentation.js"
+import {
+  ASK_QUESTION_PATH,
+  getAskSignInHref,
+} from "../app/questions/presentation.js"
 
 test("getAskSignInHref encodes callback URL for ask question", () => {
   assert.strictEqual(

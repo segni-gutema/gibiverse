@@ -77,7 +77,7 @@ export function UploadCourseMaterialWizard({
   const resolvedUnivId =
     initialUniversityId ??
     (initialCourseId
-      ? courses.find((c) => c.id === initialCourseId)?.universityId ?? null
+      ? (courses.find((c) => c.id === initialCourseId)?.universityId ?? null)
       : null)
 
   const [title, setTitle] = React.useState("")
@@ -102,9 +102,9 @@ export function UploadCourseMaterialWizard({
 
   const [progress, setProgress] = React.useState(0)
   const [uploadError, setUploadError] = React.useState<string | null>(null)
-  const [createdMaterialId, setCreatedMaterialId] = React.useState<string | null>(
-    null
-  )
+  const [createdMaterialId, setCreatedMaterialId] = React.useState<
+    string | null
+  >(null)
 
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const academicPeriods = React.useMemo(() => academicPeriodOptions(), [])
