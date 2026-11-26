@@ -272,11 +272,8 @@ export default async function HomePage() {
                             </Badge>
                             <Badge variant="outline" className="text-xs">
                               {courseMaterialTypePillLabels[
-                                (res.courseMaterialType ??
-                                  res.resourceType) as CourseMaterialType
-                              ] ??
-                                res.courseMaterialType ??
-                                res.resourceType}
+                                res.courseMaterialType as CourseMaterialType
+                              ] ?? res.courseMaterialType}
                             </Badge>
                           </div>
                           <p className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary">

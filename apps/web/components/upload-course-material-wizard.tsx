@@ -458,6 +458,3 @@ export function UploadCourseMaterialWizard({
     </Dialog>
   )
 }
-
-// Backwards compatibility alias
-export const UploadResourceWizard = UploadCourseMaterialWizard

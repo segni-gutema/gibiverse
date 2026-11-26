@@ -32,7 +32,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = params.q?.trim() || ""
   const rawType = params.type?.trim()
   const type: SearchType =
-    rawType === "resources" || rawType === "questions" || rawType === "courses"
+    rawType === "course-materials" ||
+    rawType === "questions" ||
+    rawType === "courses"
       ? rawType
       : "all"
 
@@ -46,11 +48,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     departmentId:
       type === "courses" ? params.departmentId?.trim() || null : null,
     courseId:
-      type === "resources" || type === "questions"
+      type === "course-materials" || type === "questions"
         ? params.courseId?.trim() || null
         : null,
     courseMaterialType:
-      type === "resources" && parsedMaterialType.success
+      type === "course-materials" && parsedMaterialType.success
         ? parsedMaterialType.data
         : null,
     sort:

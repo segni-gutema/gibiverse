@@ -1,6 +1,5 @@
 export type PlatformStats = {
   totalCourseMaterials: number
-  totalResources?: number
   totalQuestions: number
   activeCourses: number
 }
@@ -8,7 +7,6 @@ export type PlatformStats = {
 export const DEFAULT_PLATFORM_OVERVIEW = {
   stats: {
     totalCourseMaterials: 0,
-    totalResources: 0,
     totalQuestions: 0,
     activeCourses: 0,
   },
@@ -25,7 +23,7 @@ export function getOverviewEmptyState(stats: PlatformStats): {
   title: string
   description: string
 } {
-  const count = stats.totalCourseMaterials ?? stats.totalResources ?? 0
+  const count = stats.totalCourseMaterials ?? 0
   const hasActivity =
     count > 0 || stats.totalQuestions > 0 || stats.activeCourses > 0
 

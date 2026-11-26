@@ -59,11 +59,12 @@ import {
 } from "@gibiverse/shared/types"
 import {
   buildSearchPageUrl,
+  emptySearchResponse,
   getSearchEmptyState,
   ALL_TAB_PREVIEW_LIMIT,
   type SearchResponse,
   type SearchResultQuestion,
-  type SearchResultResource,
+  type SearchResultCourseMaterial,
   type SearchResultCourse,
   type SearchType,
   type SearchFilterParams,
@@ -133,13 +134,17 @@ export function SearchClient({
     courseId: string | null
   }>({
     courseMaterialType:
-      initialType === "resources"
+      initialType === "course-materials"
         ? (initialFilters?.courseMaterialType as CourseMaterialType) || null
         : null,
     universityId:
-      initialType === "resources" ? initialFilters?.universityId || null : null,
+      initialType === "course-materials"
+        ? initialFilters?.universityId || null
+        : null,
     courseId:
-      initialType === "resources" ? initialFilters?.courseId || null : null,
+      initialType === "course-materials"
+        ? initialFilters?.courseId || null
+        : null,
   })
 
   const [questionFilters, setQuestionFilters] = React.useState<{
@@ -220,14 +225,7 @@ export function SearchClient({
     setError(null)
     try {
       if (!query.trim()) {
-        setResults({
-          query: "",
-          type,
-          counts: { all: 0, resources: 0, questions: 0, courses: 0 },
-          resources: [],
-          questions: [],
-          courses: [],
-        })
+        setResults(emptySearchResponse(type))
         return
       }
 
@@ -284,7 +282,7 @@ export function SearchClient({
   ) => {
     const updated = { ...materialFilters, ...next }
     setMaterialFilters(updated)
-    await applyTabSearch("resources", {
+    await applyTabSearch("course-materials", {
       courseMaterialType: updated.courseMaterialType,
       universityId: updated.universityId,
       courseId: updated.courseId,
@@ -298,7 +296,7 @@ export function SearchClient({
       courseId: null,
     }
     setMaterialFilters(reset)
-    await applyTabSearch("resources", {})
+    await applyTabSearch("course-materials", {})
   }
 
   const hasActiveMaterialFilters = Boolean(
@@ -394,7 +392,7 @@ export function SearchClient({
   const emptyState = getSearchEmptyState(
     results.query,
     activeTab,
-    activeTab === "resources"
+    activeTab === "course-materials"
       ? hasActiveMaterialFilters
       : activeTab === "questions"
         ? hasActiveQuestionFilters
@@ -452,11 +450,11 @@ export function SearchClient({
             testId="tab-all"
           />
           <TabButton
-            active={activeTab === "resources"}
-            onClick={() => handleTabChange("resources")}
+            active={activeTab === "course-materials"}
+            onClick={() => handleTabChange("course-materials")}
             label="Course Materials"
-            count={results.counts.resources}
-            testId="tab-resources"
+            count={results.counts.courseMaterials}
+            testId="tab-course-materials"
           />
           <TabButton
             active={activeTab === "questions"}
@@ -477,7 +475,7 @@ export function SearchClient({
 
       {/* Tab-Specific Filters Bar (mirroring dedicated pages) */}
       {/* 1. Course Materials Filters (mirrors /course-materials) */}
-      {activeTab === "resources" && (
+      {activeTab === "course-materials" && (
         <section
           className="flex flex-col gap-3"
           aria-label="Filter course materials"
@@ -538,9 +536,9 @@ export function SearchClient({
             <div className="text-xs text-muted-foreground">
               Showing{" "}
               <strong className="font-semibold text-foreground">
-                {results.resources.length}
+                {results.courseMaterials.length}
               </strong>{" "}
-              of {results.counts.resources} course materials
+              of {results.counts.courseMaterials} course materials
             </div>
           )}
         </section>
@@ -854,33 +852,34 @@ export function SearchClient({
               {/* "All" Tab: Shows Course Materials, Questions, Courses (capped at 6 items per type) */}
               {activeTab === "all" && (
                 <>
-                  {results.resources.length > 0 && (
-                    <section aria-labelledby="resources-section-heading">
+                  {results.courseMaterials.length > 0 && (
+                    <section aria-labelledby="course-materials-section-heading">
                       <div className="mb-4 flex items-center gap-2">
                         <BookOpen className="size-5 text-primary" />
                         <h2
-                          id="resources-section-heading"
+                          id="course-materials-section-heading"
                           className="text-lg font-bold text-foreground"
                         >
                           Course Materials
                         </h2>
                         <Badge variant="secondary">
-                          {results.counts.resources}
+                          {results.counts.courseMaterials}
                         </Badge>
                       </div>
-                      <ResourceGrid
-                        resources={results.resources.slice(
+                      <CourseMaterialGrid
+                        courseMaterials={results.courseMaterials.slice(
                           0,
                           ALL_TAB_PREVIEW_LIMIT
                         )}
                       />
-                      {results.counts.resources > ALL_TAB_PREVIEW_LIMIT && (
+                      {results.counts.courseMaterials >
+                        ALL_TAB_PREVIEW_LIMIT && (
                         <div className="mt-4 flex justify-center">
                           <Button
                             type="button"
                             variant="outline"
-                            onClick={() => handleTabChange("resources")}
-                            data-testid="view-more-resources"
+                            onClick={() => handleTabChange("course-materials")}
+                            data-testid="view-more-course-materials"
                           >
                             View more
                             <ArrowRight className="ml-1.5 size-4" />
@@ -965,15 +964,15 @@ export function SearchClient({
               )}
 
               {/* Dedicated "Course Materials" Tab */}
-              {activeTab === "resources" && (
-                <section aria-labelledby="resources-tab-heading">
-                  <h2 id="resources-tab-heading" className="sr-only">
+              {activeTab === "course-materials" && (
+                <section aria-labelledby="course-materials-tab-heading">
+                  <h2 id="course-materials-tab-heading" className="sr-only">
                     Course material search results
                   </h2>
-                  {results.resources.length === 0 ? (
+                  {results.courseMaterials.length === 0 ? (
                     <div
                       className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-border px-6 py-10"
-                      data-testid="search-resources-empty-state"
+                      data-testid="search-course-materials-empty-state"
                     >
                       <h3 className="text-base font-semibold text-foreground">
                         {emptyState.title}
@@ -993,7 +992,9 @@ export function SearchClient({
                       )}
                     </div>
                   ) : (
-                    <ResourceGrid resources={results.resources} />
+                    <CourseMaterialGrid
+                      courseMaterials={results.courseMaterials}
+                    />
                   )}
                 </section>
               )}
@@ -1109,15 +1110,18 @@ function TabButton({
   )
 }
 
-function ResourceGrid({ resources }: { resources: SearchResultResource[] }) {
+function CourseMaterialGrid({
+  courseMaterials,
+}: {
+  courseMaterials: SearchResultCourseMaterial[]
+}) {
   return (
     <ul
       className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-      data-testid="search-resources-grid"
+      data-testid="search-course-materials-grid"
     >
-      {resources.map((item) => {
-        const materialType =
-          item.courseMaterialType ?? item.resourceType ?? "other"
+      {courseMaterials.map((item) => {
+        const materialType = item.courseMaterialType ?? "other"
         const typeLabel =
           courseMaterialTypePillLabels[materialType as CourseMaterialType] ??
           materialType
@@ -1127,7 +1131,7 @@ function ResourceGrid({ resources }: { resources: SearchResultResource[] }) {
             <Link
               href={`/course-materials/${item.id}`}
               className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background transition-all hover:border-foreground/20 hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-              data-testid={`search-resource-card-${item.id}`}
+              data-testid={`search-course-material-card-${item.id}`}
             >
               {/* Thumbnail / Icon area matching /course-materials */}
               <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-muted/50">

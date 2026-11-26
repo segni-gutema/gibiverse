@@ -16,8 +16,8 @@ test("buildSearchQuery formats url and query params correctly", () => {
     "/api/search?q=quantum+physics"
   )
   assert.equal(
-    buildSearchQuery("algorithms", "resources"),
-    "/api/search?q=algorithms&type=resources"
+    buildSearchQuery("algorithms", "course-materials"),
+    "/api/search?q=algorithms&type=course-materials"
   )
   assert.equal(
     buildSearchQuery("data structures", "questions"),
@@ -36,15 +36,18 @@ test("buildSearchQuery formats url and query params correctly", () => {
 test("buildSearchPageUrl formats frontend page routes without /api", () => {
   assert.equal(buildSearchPageUrl(""), "/search")
   assert.equal(buildSearchPageUrl("   "), "/search")
-  assert.equal(buildSearchPageUrl("", "resources"), "/search?type=resources")
+  assert.equal(
+    buildSearchPageUrl("", "course-materials"),
+    "/search?type=course-materials"
+  )
   assert.equal(buildSearchPageUrl("cs101"), "/search?q=cs101")
   assert.equal(
     buildSearchPageUrl("quantum physics", "all"),
     "/search?q=quantum+physics"
   )
   assert.equal(
-    buildSearchPageUrl("algorithms", "resources"),
-    "/search?q=algorithms&type=resources"
+    buildSearchPageUrl("algorithms", "course-materials"),
+    "/search?q=algorithms&type=course-materials"
   )
   assert.equal(
     buildSearchPageUrl("algorithms", "courses"),
@@ -65,9 +68,9 @@ test("getSearchEmptyState handles empty and non-empty queries across tabs includ
   assert.equal(noMatchAll.title, "No results found")
   assert.match(noMatchAll.description, /xyz123/)
 
-  const noMatchResources = getSearchEmptyState("xyz123", "resources")
-  assert.equal(noMatchResources.title, "No course materials found")
-  assert.match(noMatchResources.description, /xyz123/)
+  const noMatchMaterials = getSearchEmptyState("xyz123", "course-materials")
+  assert.equal(noMatchMaterials.title, "No course materials found")
+  assert.match(noMatchMaterials.description, /xyz123/)
 
   const noMatchQuestions = getSearchEmptyState("xyz123", "questions")
   assert.equal(noMatchQuestions.title, "No questions found")
@@ -77,7 +80,11 @@ test("getSearchEmptyState handles empty and non-empty queries across tabs includ
   assert.equal(noMatchCourses.title, "No courses found")
   assert.match(noMatchCourses.description, /xyz123/)
 
-  const filteredMaterials = getSearchEmptyState("xyz123", "resources", true)
+  const filteredMaterials = getSearchEmptyState(
+    "xyz123",
+    "course-materials",
+    true
+  )
   assert.equal(
     filteredMaterials.title,
     "No course materials match these filters"
@@ -88,16 +95,16 @@ test("getSearchEmptyState handles empty and non-empty queries across tabs includ
 })
 
 test("emptySearchResponse returns zeroed response with courses without network fetch for empty query", () => {
-  const result = emptySearchResponse("resources")
+  const result = emptySearchResponse("course-materials")
   assert.equal(result.query, "")
-  assert.equal(result.type, "resources")
+  assert.equal(result.type, "course-materials")
   assert.deepEqual(result.counts, {
     all: 0,
-    resources: 0,
+    courseMaterials: 0,
     questions: 0,
     courses: 0,
   })
-  assert.deepEqual(result.resources, [])
+  assert.deepEqual(result.courseMaterials, [])
   assert.deepEqual(result.questions, [])
   assert.deepEqual(result.courses, [])
 
@@ -106,7 +113,7 @@ test("emptySearchResponse returns zeroed response with courses without network f
   assert.equal(platformResult.type, "courses")
   assert.deepEqual(platformResult.counts, {
     all: 0,
-    resources: 0,
+    courseMaterials: 0,
     questions: 0,
     courses: 0,
   })

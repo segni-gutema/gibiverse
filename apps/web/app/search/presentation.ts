@@ -9,11 +9,10 @@ export type SearchTab = SearchType
 
 export const ALL_TAB_PREVIEW_LIMIT = 6
 
-export type SearchResultResource = {
+export type SearchResultCourseMaterial = {
   id: string
   title: string
-  resourceType: string
-  courseMaterialType?: string
+  courseMaterialType: string
   academicPeriod: string
   createdAt: string
   courseId: string
@@ -56,7 +55,7 @@ export type SearchResultCourse = {
 
 export type SearchCounts = {
   all: number
-  resources: number
+  courseMaterials: number
   questions: number
   courses: number
 }
@@ -65,7 +64,7 @@ export type SearchResponse = {
   query: string
   type: SearchType
   counts: SearchCounts
-  resources: SearchResultResource[]
+  courseMaterials: SearchResultCourseMaterial[]
   questions: SearchResultQuestion[]
   courses: SearchResultCourse[]
 }
@@ -82,8 +81,8 @@ export function emptySearchResponse(type: SearchType = "all"): SearchResponse {
   return {
     query: "",
     type,
-    counts: { all: 0, resources: 0, questions: 0, courses: 0 },
-    resources: [],
+    counts: { all: 0, courseMaterials: 0, questions: 0, courses: 0 },
+    courseMaterials: [],
     questions: [],
     courses: [],
   }
@@ -152,12 +151,12 @@ export function getSearchEmptyState(
     return {
       title: "Search Gibiverse",
       description:
-        "Find course materials, questions, and courses by keyword, topic, or course code.",
+        "Find course materials, questions, and courses by keyword, title, or course code.",
     }
   }
 
   if (hasActiveFilters) {
-    if (type === "resources") {
+    if (type === "course-materials") {
       return {
         title: "No course materials match these filters",
         description:
@@ -180,7 +179,7 @@ export function getSearchEmptyState(
     }
   }
 
-  if (type === "resources") {
+  if (type === "course-materials") {
     return {
       title: "No course materials found",
       description: `We couldn't find any course materials matching "${trimmed}". Try checking for typos or searching for a course code.`,
