@@ -108,14 +108,14 @@ export function QuestionDiscussion({
             targetType="question"
             targetId={question.id}
             initialScore={question.voteScore}
-            initialUserVote={question.userVote}
+            initialStudentVote={question.studentVote}
             orientation="vertical"
             size="default"
-            onVoteChange={(newScore, newUserVote) => {
+            onVoteChange={(newScore, newStudentVote) => {
               setQuestion((prev) => ({
                 ...prev,
                 voteScore: newScore,
-                userVote: newUserVote,
+                studentVote: newStudentVote,
               }))
             }}
           />
@@ -213,10 +213,10 @@ export function QuestionDiscussion({
                       targetType="answer"
                       targetId={ans.id}
                       initialScore={ans.voteScore}
-                      initialUserVote={ans.userVote}
+                      initialStudentVote={ans.studentVote}
                       orientation="vertical"
                       size="sm"
-                      onVoteChange={(newScore, newUserVote) => {
+                      onVoteChange={(newScore, newStudentVote) => {
                         setQuestion((prev) => ({
                           ...prev,
                           answers: prev.answers.map((a) =>
@@ -224,7 +224,7 @@ export function QuestionDiscussion({
                               ? {
                                   ...a,
                                   voteScore: newScore,
-                                  userVote: newUserVote,
+                                  studentVote: newStudentVote,
                                 }
                               : a
                           ),

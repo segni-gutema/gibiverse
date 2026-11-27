@@ -102,6 +102,24 @@ export const courseMaterialTypeOptions: Array<{
  */
 export const ACADEMIC_PERIOD_REGEX = /^\d{4}\/\d{4} (semester [12]|summer)$/
 
+/**
+ * Summary view of a course material as returned by the API catalog/list
+ * endpoints. Contains only the fields needed for card/list rendering.
+ */
+export type CourseMaterialSummary = {
+  id: string
+  title: string
+  courseMaterialType: CourseMaterialType
+  academicPeriod: string
+  createdAt: string | Date
+  courseId: string
+  courseCode: string
+  courseName: string
+  universityId: string
+  universityName: string
+  departmentId: string
+}
+
 export type AcademicPeriodOption = {
   value: string
   label: string

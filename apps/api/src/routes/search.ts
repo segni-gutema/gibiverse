@@ -42,7 +42,7 @@ type ReturnedQuestion = {
   studentName: string
   voteScore: number
   answerCount: number
-  userVote: number | null
+  studentVote: number | null
 }
 
 type ReturnedCourse = {
@@ -231,7 +231,9 @@ const search = new Hono().get(
         studentName: student.name,
         voteScore: question.voteScore,
         answerCount: question.answerCount,
-        userVote: user ? vote.value : sql<number | null>`null`.as("userVote"),
+        studentVote: user
+          ? vote.value
+          : sql<number | null>`null`.as("studentVote"),
       }
 
       const rows = user

@@ -38,7 +38,7 @@ export type SearchResultQuestion = {
   studentName: string
   voteScore: number
   answerCount: number
-  userVote?: number | null
+  studentVote?: number | null
 }
 
 export type SearchResultCourse = {

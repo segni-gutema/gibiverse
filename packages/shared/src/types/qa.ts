@@ -1,6 +1,25 @@
 import { z } from "zod"
 
 /**
+ * Summary view of a question as returned by the API list endpoint.
+ * Contains only the fields needed for catalog/list rendering.
+ */
+export type QuestionSummary = {
+  id: string
+  title: string
+  body: string
+  createdAt: string | Date
+  courseId: string
+  courseCode: string
+  courseName: string
+  studentId: string
+  studentName: string
+  voteScore: number
+  answerCount: number
+  studentVote: number | null
+}
+
+/**
  * Question sorting options supported by Gibiverse.
  */
 export const QUESTION_SORT_OPTIONS = [

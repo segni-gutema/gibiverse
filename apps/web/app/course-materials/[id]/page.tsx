@@ -4,10 +4,8 @@ import { ArrowLeft, Download } from "lucide-react"
 import { Button } from "@gibiverse/ui/components/button"
 import { CourseMaterialPreview } from "@/components/course-material-preview"
 import { client } from "@gibiverse/api-client"
-import {
-  formatAcademicPeriod,
-  formatRelativeUploadDate,
-} from "@/lib/formatters"
+import { formatAcademicPeriod } from "@gibiverse/shared/utils"
+import { formatRelativeUploadDate } from "@/lib/formatters"
 import { resolvePreviewType, courseMaterialDownloadUrl } from "../presentation"
 import { formatBytes } from "@gibiverse/shared/utils"
 
