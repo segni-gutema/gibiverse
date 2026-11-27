@@ -5,7 +5,7 @@ import db from "../src/db/index.js"
 import { university, department, course } from "../src/db/schema/academic.js"
 import { user as studentTable } from "../src/db/schema/auth.js"
 import { courseMaterial } from "../src/db/schema/course-material.js"
-import { createCourseMaterials } from "../src/course-materials/index.js"
+import { createCourseMaterials } from "../src/modules/course-materials/index.js"
 import type { StorageProvider } from "../src/storage/types.js"
 
 // ---------------------------------------------------------------------------

@@ -14,7 +14,6 @@ export { calculateVoteTransition }
 export interface VoteResponse {
   score: number
   studentVote: CurrentVote
-  userVote?: CurrentVote
   targetType: VoteTargetType
   targetId: string
 }

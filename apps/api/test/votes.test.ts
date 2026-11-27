@@ -197,10 +197,10 @@ test("POST /api/votes creates upvote on question, toggles off, and switches dire
   assert.strictEqual(upRes.status, 200)
   const upData = (await upRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(upData.score, 1)
-  assert.strictEqual(upData.userVote, 1)
+  assert.strictEqual(upData.studentVote, 1)
 
   // Verify in DB
   const [q1] = await db
@@ -226,10 +226,10 @@ test("POST /api/votes creates upvote on question, toggles off, and switches dire
   assert.strictEqual(toggleRes.status, 200)
   const toggleData = (await toggleRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(toggleData.score, 0)
-  assert.strictEqual(toggleData.userVote, null)
+  assert.strictEqual(toggleData.studentVote, null)
 
   const [q2] = await db
     .select({ voteScore: question.voteScore })
@@ -254,10 +254,10 @@ test("POST /api/votes creates upvote on question, toggles off, and switches dire
   assert.strictEqual(downRes.status, 200)
   const downData = (await downRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(downData.score, -1)
-  assert.strictEqual(downData.userVote, -1)
+  assert.strictEqual(downData.studentVote, -1)
 
   // 4. Switch direction (-1 to +1)
   const switchRes = await app.request("/api/votes", {
@@ -275,10 +275,10 @@ test("POST /api/votes creates upvote on question, toggles off, and switches dire
   assert.strictEqual(switchRes.status, 200)
   const switchData = (await switchRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(switchData.score, 1)
-  assert.strictEqual(switchData.userVote, 1)
+  assert.strictEqual(switchData.studentVote, 1)
 
   // Clean up studentA vote
   await app.request("/api/votes", {
@@ -312,10 +312,10 @@ test("POST /api/votes supports voting on answers", async () => {
   assert.strictEqual(upRes.status, 200)
   const upData = (await upRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(upData.score, 1)
-  assert.strictEqual(upData.userVote, 1)
+  assert.strictEqual(upData.studentVote, 1)
 
   const [a1] = await db
     .select({ voteScore: answer.voteScore })
@@ -340,10 +340,10 @@ test("POST /api/votes supports voting on answers", async () => {
   assert.strictEqual(downRes.status, 200)
   const downData = (await downRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(downData.score, -1)
-  assert.strictEqual(downData.userVote, -1)
+  assert.strictEqual(downData.studentVote, -1)
 
   // Student A toggles off downvote
   const toggleRes = await app.request("/api/votes", {
@@ -361,10 +361,10 @@ test("POST /api/votes supports voting on answers", async () => {
   assert.strictEqual(toggleRes.status, 200)
   const toggleData = (await toggleRes.json()) as {
     score: number
-    userVote: number | null
+    studentVote: number | null
   }
   assert.strictEqual(toggleData.score, 0)
-  assert.strictEqual(toggleData.userVote, null)
+  assert.strictEqual(toggleData.studentVote, null)
 })
 
 test("POST /api/votes maintains aggregate score across multiple voters", async () => {

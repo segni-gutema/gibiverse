@@ -104,9 +104,7 @@ export function VoteControls({
       }
       const res = await apiRes.json()
       setScore(res.score)
-      const confirmedVote = (res.studentVote ??
-        res.userVote ??
-        null) as CurrentVote
+      const confirmedVote = (res.studentVote ?? null) as CurrentVote
       setActiveVote(confirmedVote)
       onVoteChange?.(res.score, confirmedVote)
     } catch {

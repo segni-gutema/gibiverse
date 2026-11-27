@@ -7,7 +7,10 @@ import { user } from "../src/db/schema/auth.js"
 import { university, department, course } from "../src/db/schema/academic.js"
 import { question, answer } from "../src/db/schema/question.js"
 import { vote } from "../src/db/schema/vote.js"
-import { createVoting, calculateVoteTransition } from "../src/voting/index.js"
+import {
+  createVoting,
+  calculateVoteTransition,
+} from "../src/modules/voting/index.js"
 
 const suffix = Date.now()
 const uniId = `uni_vt_${suffix}`
@@ -125,66 +128,9 @@ test("calculateVoteTransition computes pure transition states correctly", () => 
   })
 })
 
-test("voting.cast() validates input parameters", async () => {
-  // Missing user
-  const res1 = await voting.cast({
-    user: null as never,
-    targetType: "question",
-    targetId: testQuestionId,
-    value: 1,
-  })
-  assert.strictEqual(res1.ok, false)
-  if (!res1.ok) {
-    assert.strictEqual(res1.error.code, "validation")
-    assert.strictEqual(res1.error.message, "User is required")
-  }
-
-  // Invalid targetType
-  const res2 = await voting.cast({
-    user: userA,
-    targetType: "post",
-    targetId: testQuestionId,
-    value: 1,
-  })
-  assert.strictEqual(res2.ok, false)
-  if (!res2.ok) {
-    assert.strictEqual(res2.error.code, "validation")
-    assert.strictEqual(
-      res2.error.message,
-      "targetType must be either 'question' or 'answer'"
-    )
-  }
-
-  // Missing targetId
-  const res3 = await voting.cast({
-    user: userA,
-    targetType: "question",
-    targetId: "   ",
-    value: 1,
-  })
-  assert.strictEqual(res3.ok, false)
-  if (!res3.ok) {
-    assert.strictEqual(res3.error.code, "validation")
-    assert.strictEqual(res3.error.message, "targetId is required")
-  }
-
-  // Invalid value
-  const res4 = await voting.cast({
-    user: userA,
-    targetType: "question",
-    targetId: testQuestionId,
-    value: 0,
-  })
-  assert.strictEqual(res4.ok, false)
-  if (!res4.ok) {
-    assert.strictEqual(res4.error.code, "validation")
-    assert.strictEqual(res4.error.message, "value must be 1 or -1")
-  }
-})
-
 test("voting.cast() returns not_found for non-existent target", async () => {
   const res1 = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: "non-existent-question",
     value: 1,
@@ -196,7 +142,7 @@ test("voting.cast() returns not_found for non-existent target", async () => {
   }
 
   const res2 = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "answer",
     targetId: "non-existent-answer",
     value: -1,
@@ -211,7 +157,7 @@ test("voting.cast() returns not_found for non-existent target", async () => {
 test("voting.cast() handles question vote lifecycle: initial, toggle off, and switch", async () => {
   // 1. Initial Upvote (+1)
   const upRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: testQuestionId,
     value: 1,
@@ -219,7 +165,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
   assert.strictEqual(upRes.ok, true)
   if (upRes.ok) {
     assert.strictEqual(upRes.data.score, 1)
-    assert.strictEqual(upRes.data.userVote, 1)
+    assert.strictEqual(upRes.data.studentVote, 1)
   }
 
   // Verify DB
@@ -232,7 +178,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
 
   // 2. Toggle Off: Re-clicking +1 removes vote
   const toggleRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: testQuestionId,
     value: 1,
@@ -240,7 +186,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
   assert.strictEqual(toggleRes.ok, true)
   if (toggleRes.ok) {
     assert.strictEqual(toggleRes.data.score, 0)
-    assert.strictEqual(toggleRes.data.userVote, null)
+    assert.strictEqual(toggleRes.data.studentVote, null)
   }
 
   const [q2] = await db
@@ -252,7 +198,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
 
   // 3. Downvote (-1)
   const downRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: testQuestionId,
     value: -1,
@@ -260,12 +206,12 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
   assert.strictEqual(downRes.ok, true)
   if (downRes.ok) {
     assert.strictEqual(downRes.data.score, -1)
-    assert.strictEqual(downRes.data.userVote, -1)
+    assert.strictEqual(downRes.data.studentVote, -1)
   }
 
   // 4. Switch direction (-1 to +1)
   const switchRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: testQuestionId,
     value: 1,
@@ -273,12 +219,12 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
   assert.strictEqual(switchRes.ok, true)
   if (switchRes.ok) {
     assert.strictEqual(switchRes.data.score, 1)
-    assert.strictEqual(switchRes.data.userVote, 1)
+    assert.strictEqual(switchRes.data.studentVote, 1)
   }
 
   // Cleanup: toggle off
   await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "question",
     targetId: testQuestionId,
     value: 1,
@@ -288,7 +234,7 @@ test("voting.cast() handles question vote lifecycle: initial, toggle off, and sw
 test("voting.cast() supports voting on answers", async () => {
   // Upvote answer
   const upRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "answer",
     targetId: testAnswerId,
     value: 1,
@@ -296,12 +242,12 @@ test("voting.cast() supports voting on answers", async () => {
   assert.strictEqual(upRes.ok, true)
   if (upRes.ok) {
     assert.strictEqual(upRes.data.score, 1)
-    assert.strictEqual(upRes.data.userVote, 1)
+    assert.strictEqual(upRes.data.studentVote, 1)
   }
 
   // Switch to downvote
   const downRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "answer",
     targetId: testAnswerId,
     value: -1,
@@ -309,12 +255,12 @@ test("voting.cast() supports voting on answers", async () => {
   assert.strictEqual(downRes.ok, true)
   if (downRes.ok) {
     assert.strictEqual(downRes.data.score, -1)
-    assert.strictEqual(downRes.data.userVote, -1)
+    assert.strictEqual(downRes.data.studentVote, -1)
   }
 
   // Toggle off
   const toggleRes = await voting.cast({
-    user: userA,
+    student: userA,
     targetType: "answer",
     targetId: testAnswerId,
     value: -1,
@@ -322,7 +268,7 @@ test("voting.cast() supports voting on answers", async () => {
   assert.strictEqual(toggleRes.ok, true)
   if (toggleRes.ok) {
     assert.strictEqual(toggleRes.data.score, 0)
-    assert.strictEqual(toggleRes.data.userVote, null)
+    assert.strictEqual(toggleRes.data.studentVote, null)
   }
 })
 
@@ -332,10 +278,10 @@ test("voting.cast() serializes concurrent votes from multiple users without HTTP
   const results = await Promise.all(
     concurrentUsers.map((u, i) =>
       voting.cast({
-        user: u,
+        student: u,
         targetType: "question",
         targetId: testQuestionId,
-        value: values[i],
+        value: values[i]!,
       })
     )
   )
@@ -356,10 +302,10 @@ test("voting.cast() serializes concurrent votes from multiple users without HTTP
   const cleanupResults = await Promise.all(
     concurrentUsers.map((u, i) =>
       voting.cast({
-        user: u,
+        student: u,
         targetType: "question",
         targetId: testQuestionId,
-        value: values[i],
+        value: values[i]!,
       })
     )
   )

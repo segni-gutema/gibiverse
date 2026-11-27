@@ -7,7 +7,7 @@ import {
 import db from "../db/index.js"
 import { statusFor } from "../lib/result.js"
 import { requireAuth } from "../middleware/auth.js"
-import { createCourseMaterials } from "../course-materials/index.js"
+import { createCourseMaterials } from "../modules/course-materials/index.js"
 import { createStorage } from "../storage/index.js"
 
 const courseMaterialModule = createCourseMaterials({

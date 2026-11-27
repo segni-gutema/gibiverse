@@ -4,7 +4,7 @@ import { castVoteSchema } from "@gibiverse/shared/validation"
 import db from "../db/index.js"
 import { statusFor } from "../lib/result.js"
 import { requireAuth } from "../middleware/auth.js"
-import { createVoting } from "../voting/index.js"
+import { createVoting } from "../modules/voting/index.js"
 
 const voting = createVoting({ db })
 const votes = new Hono().post(
@@ -20,7 +20,7 @@ const votes = new Hono().post(
     const { targetType, targetId, value } = c.req.valid("json")
 
     const result = await voting.cast({
-      user,
+      student: { id: user.id, name: user.name },
       targetType,
       targetId,
       value,
@@ -30,13 +30,7 @@ const votes = new Hono().post(
       return c.json({ error: result.error.message }, statusFor(result.error))
     }
 
-    return c.json(
-      {
-        ...result.data,
-        studentVote: result.data.userVote,
-      },
-      200
-    )
+    return c.json(result.data, 200)
   }
 )
 

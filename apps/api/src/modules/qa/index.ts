@@ -6,10 +6,11 @@ import type {
   PostAnswerPayload,
   AcceptAnswerPayload,
 } from "@gibiverse/shared/types"
-import { course } from "../db/schema/academic.js"
-import { user as studentTable } from "../db/schema/auth.js"
-import { question, answer } from "../db/schema/question.js"
-import { vote } from "../db/schema/vote.js"
+import { course } from "../../db/schema/academic.js"
+import { user as studentTable } from "../../db/schema/auth.js"
+import { question, answer } from "../../db/schema/question.js"
+import { vote } from "../../db/schema/vote.js"
+import { studentVoteProjection } from "../../lib/queries.js"
 import {
   ok,
   err,
@@ -17,7 +18,7 @@ import {
   type StudentIdentity,
   type Result,
   type DomainError,
-} from "../lib/result.js"
+} from "../../lib/result.js"
 
 export type { DomainError as QaError }
 export type QaResult<T> = Result<T>
@@ -113,58 +114,38 @@ export function createQa(deps: { db: Db }) {
           ? [asc(question.answerCount), desc(question.createdAt)]
           : [desc(question.createdAt)]
 
-    const base = student
-      ? db
-          .select({
-            id: question.id,
-            title: question.title,
-            body: question.body,
-            createdAt: question.createdAt,
-            courseId: question.courseId,
-            courseCode: course.code,
-            courseName: course.name,
-            studentId: question.userId,
-            studentName: studentTable.name,
-            voteScore: question.voteScore,
-            answerCount: question.answerCount,
-            studentVote: vote.value,
-          })
-          .from(question)
-          .innerJoin(course, eq(question.courseId, course.id))
-          .innerJoin(studentTable, eq(question.userId, studentTable.id))
-          .leftJoin(
-            vote,
-            and(
-              eq(vote.targetId, question.id),
-              eq(vote.targetType, "question"),
-              eq(vote.userId, student.id)
-            )
-          )
-          .orderBy(...orderBy)
-      : db
-          .select({
-            id: question.id,
-            title: question.title,
-            body: question.body,
-            createdAt: question.createdAt,
-            courseId: question.courseId,
-            courseCode: course.code,
-            courseName: course.name,
-            studentId: question.userId,
-            studentName: studentTable.name,
-            voteScore: question.voteScore,
-            answerCount: question.answerCount,
-            studentVote: sql<number | null>`null`.as("studentVote"),
-          })
-          .from(question)
-          .innerJoin(course, eq(question.courseId, course.id))
-          .innerJoin(studentTable, eq(question.userId, studentTable.id))
-          .orderBy(...orderBy)
+    const { studentVote, joinOn } = studentVoteProjection(
+      student?.id,
+      "question",
+      question.id
+    )
 
-    const rows =
+    const base = db
+      .select({
+        id: question.id,
+        title: question.title,
+        body: question.body,
+        createdAt: question.createdAt,
+        courseId: question.courseId,
+        courseCode: course.code,
+        courseName: course.name,
+        studentId: question.userId,
+        studentName: studentTable.name,
+        voteScore: question.voteScore,
+        answerCount: question.answerCount,
+        studentVote,
+      })
+      .from(question)
+      .innerJoin(course, eq(question.courseId, course.id))
+      .innerJoin(studentTable, eq(question.userId, studentTable.id))
+
+    const withVote = joinOn ? base.leftJoin(vote, joinOn) : base
+    const filtered =
       filterClauses.length > 0
-        ? await base.where(and(...filterClauses))
-        : await base
+        ? withVote.where(and(...filterClauses))
+        : withVote
+
+    const rows = await filtered.orderBy(...orderBy)
 
     return ok(rows)
   }
@@ -175,108 +156,59 @@ export function createQa(deps: { db: Db }) {
   }) {
     const { student, questionId } = input
 
-    const qQuery = student
-      ? db
-          .select({
-            id: question.id,
-            title: question.title,
-            body: question.body,
-            createdAt: question.createdAt,
-            updatedAt: question.updatedAt,
-            courseId: question.courseId,
-            courseCode: course.code,
-            courseName: course.name,
-            studentId: question.userId,
-            studentName: studentTable.name,
-            voteScore: question.voteScore,
-            answerCount: question.answerCount,
-            acceptedAnswerId: question.acceptedAnswerId,
-            studentVote: vote.value,
-          })
-          .from(question)
-          .innerJoin(course, eq(question.courseId, course.id))
-          .innerJoin(studentTable, eq(question.userId, studentTable.id))
-          .leftJoin(
-            vote,
-            and(
-              eq(vote.targetId, question.id),
-              eq(vote.targetType, "question"),
-              eq(vote.userId, student.id)
-            )
-          )
-          .where(eq(question.id, questionId))
-          .limit(1)
-      : db
-          .select({
-            id: question.id,
-            title: question.title,
-            body: question.body,
-            createdAt: question.createdAt,
-            updatedAt: question.updatedAt,
-            courseId: question.courseId,
-            courseCode: course.code,
-            courseName: course.name,
-            studentId: question.userId,
-            studentName: studentTable.name,
-            voteScore: question.voteScore,
-            answerCount: question.answerCount,
-            acceptedAnswerId: question.acceptedAnswerId,
-            studentVote: sql<number | null>`null`.as("studentVote"),
-          })
-          .from(question)
-          .innerJoin(course, eq(question.courseId, course.id))
-          .innerJoin(studentTable, eq(question.userId, studentTable.id))
-          .where(eq(question.id, questionId))
-          .limit(1)
+    const { studentVote: qStudentVote, joinOn: qJoinOn } =
+      studentVoteProjection(student?.id, "question", question.id)
 
-    const [qRow] = await qQuery
+    const qBase = db
+      .select({
+        id: question.id,
+        title: question.title,
+        body: question.body,
+        createdAt: question.createdAt,
+        updatedAt: question.updatedAt,
+        courseId: question.courseId,
+        courseCode: course.code,
+        courseName: course.name,
+        studentId: question.userId,
+        studentName: studentTable.name,
+        voteScore: question.voteScore,
+        answerCount: question.answerCount,
+        acceptedAnswerId: question.acceptedAnswerId,
+        studentVote: qStudentVote,
+      })
+      .from(question)
+      .innerJoin(course, eq(question.courseId, course.id))
+      .innerJoin(studentTable, eq(question.userId, studentTable.id))
+
+    const [qRow] = await (qJoinOn ? qBase.leftJoin(vote, qJoinOn) : qBase)
+      .where(eq(question.id, questionId))
+      .limit(1)
+
     if (!qRow) {
       return err("not_found", "Question not found")
     }
 
-    const aQuery = student
-      ? db
-          .select({
-            id: answer.id,
-            body: answer.body,
-            questionId: answer.questionId,
-            studentId: answer.userId,
-            studentName: studentTable.name,
-            voteScore: answer.voteScore,
-            createdAt: answer.createdAt,
-            updatedAt: answer.updatedAt,
-            studentVote: vote.value,
-          })
-          .from(answer)
-          .innerJoin(studentTable, eq(answer.userId, studentTable.id))
-          .leftJoin(
-            vote,
-            and(
-              eq(vote.targetId, answer.id),
-              eq(vote.targetType, "answer"),
-              eq(vote.userId, student.id)
-            )
-          )
-          .where(eq(answer.questionId, questionId))
-          .orderBy(asc(answer.createdAt))
-      : db
-          .select({
-            id: answer.id,
-            body: answer.body,
-            questionId: answer.questionId,
-            studentId: answer.userId,
-            studentName: studentTable.name,
-            voteScore: answer.voteScore,
-            createdAt: answer.createdAt,
-            updatedAt: answer.updatedAt,
-            studentVote: sql<number | null>`null`.as("studentVote"),
-          })
-          .from(answer)
-          .innerJoin(studentTable, eq(answer.userId, studentTable.id))
-          .where(eq(answer.questionId, questionId))
-          .orderBy(asc(answer.createdAt))
+    const { studentVote: aStudentVote, joinOn: aJoinOn } =
+      studentVoteProjection(student?.id, "answer", answer.id)
 
-    const answers = await aQuery
+    const aBase = db
+      .select({
+        id: answer.id,
+        body: answer.body,
+        questionId: answer.questionId,
+        studentId: answer.userId,
+        studentName: studentTable.name,
+        voteScore: answer.voteScore,
+        createdAt: answer.createdAt,
+        updatedAt: answer.updatedAt,
+        studentVote: aStudentVote,
+      })
+      .from(answer)
+      .innerJoin(studentTable, eq(answer.userId, studentTable.id))
+
+    const answers = await (aJoinOn ? aBase.leftJoin(vote, aJoinOn) : aBase)
+      .where(eq(answer.questionId, questionId))
+      .orderBy(asc(answer.createdAt))
     const answersWithAccepted = answers.map((ans) => ({
       ...ans,
       isAccepted: qRow.acceptedAnswerId === ans.id,
