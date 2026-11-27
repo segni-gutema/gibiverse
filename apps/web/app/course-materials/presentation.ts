@@ -1,6 +1,9 @@
 import { formatAcademicPeriod } from "@gibiverse/shared/utils"
 import { formatRelativeUploadDate } from "@/lib/formatters"
-import type { CourseMaterialType } from "@gibiverse/shared/types"
+import type {
+  CourseMaterialSummary,
+  CourseMaterialType,
+} from "@gibiverse/shared/types"
 
 export { formatAcademicPeriod, formatRelativeUploadDate }
 
@@ -16,17 +19,12 @@ export type CourseMaterialEmptyState = {
   description: string
 }
 
-export type CatalogCourseMaterial = {
-  id: string
-  title: string
+export type CatalogCourseMaterial = Omit<
+  CourseMaterialSummary,
+  "universityName" | "courseMaterialType"
+> & {
   courseMaterialType: CourseMaterialType | string
-  academicPeriod: string
-  createdAt: string
-  courseId: string
-  courseCode: string
-  courseName: string
-  universityId?: string
-  departmentId?: string
+  universityName?: string
   thumbnailPath?: string | null
 }
 

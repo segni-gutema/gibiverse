@@ -1,4 +1,8 @@
-import { postAnswerSchema, type QuestionSort } from "@gibiverse/shared/types"
+import {
+  postAnswerSchema,
+  type QuestionSort,
+  type QuestionSummary,
+} from "@gibiverse/shared/types"
 
 export type { QuestionSort }
 
@@ -9,20 +13,7 @@ export type QuestionCatalogFilters = {
   sort: QuestionSort
 }
 
-export type CatalogQuestion = {
-  id: string
-  title: string
-  body: string
-  createdAt: string
-  courseId: string
-  courseCode: string
-  courseName: string
-  studentId: string
-  studentName: string
-  voteScore: number
-  answerCount: number
-  studentVote?: number | null
-}
+export type CatalogQuestion = QuestionSummary
 
 export type QuestionCatalogEmptyState = {
   title: string

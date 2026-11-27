@@ -1,5 +1,5 @@
 export function formatRelativeUploadDate(
-  createdAt: string,
+  createdAt: string | Date,
   now: Date = new Date()
 ): string {
   const then = new Date(createdAt)

@@ -3,8 +3,6 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BookOpen, File, FileText, Presentation } from "lucide-react"
-import { cn } from "@gibiverse/ui/lib/utils"
 import { Badge } from "@gibiverse/ui/components/badge"
 import { Button } from "@gibiverse/ui/components/button"
 import {
@@ -15,7 +13,9 @@ import { client } from "@gibiverse/api-client"
 import type { Course, University } from "@/app/courses/presentation"
 import { formatRelativeUploadDate } from "@/lib/formatters"
 import { ACTIVE_TOGGLE_CLASSES } from "@/lib/toggle-styles"
+import { useFilteredCatalog } from "@/hooks/use-filtered-catalog"
 import { CourseFilterDropdown } from "@/components/course-filter-dropdown"
+import { CourseMaterialTypeIcon } from "@/components/course-material-type-icon"
 import {
   catalogEmptyState,
   hasActiveCatalogFilters,
@@ -30,28 +30,6 @@ import {
 
 const ALL_TYPE_KEY = "__all_types__"
 
-function FileTypeIcon({
-  courseMaterialType,
-  className,
-}: {
-  courseMaterialType: string
-  className?: string
-}) {
-  const cls = cn("size-8 text-muted-foreground/60", className)
-  switch (courseMaterialType) {
-    case "exam":
-    case "notes":
-    case "assignment":
-      return <FileText className={cls} />
-    case "slides":
-      return <Presentation className={cls} />
-    case "lab":
-      return <BookOpen className={cls} />
-    default:
-      return <File className={cls} />
-  }
-}
-
 export function CourseMaterialCatalogClient({
   universities,
   courses,
@@ -63,63 +41,43 @@ export function CourseMaterialCatalogClient({
   initialCourseMaterials: CatalogCourseMaterial[]
   universityName?: string | null
 }) {
-  const [filters, setFilters] = React.useState<CourseMaterialFilters>({
-    courseMaterialType: null,
-    universityId: null,
-    courseId: null,
-  })
-  const [courseMaterials, setCourseMaterials] = React.useState<
-    CatalogCourseMaterial[]
-  >(initialCourseMaterials)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-  const isFirstRender = React.useRef(true)
-
-  React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-
-    let cancelled = false
-    setIsLoading(true)
-    setError(null)
-
-    client.api["course-materials"]
-      .$get({
-        query: {
-          courseMaterialType: filters.courseMaterialType || undefined,
-          universityId: filters.universityId || undefined,
-          departmentId: filters.departmentId || undefined,
-          courseId: filters.courseId || undefined,
+  const {
+    data: courseMaterials,
+    isLoading,
+    error,
+    filters,
+    setFilters,
+    resetFilters,
+    hasActiveFilters,
+  } = useFilteredCatalog<CatalogCourseMaterial, CourseMaterialFilters>({
+    initialData: initialCourseMaterials,
+    initialFilters: {
+      courseMaterialType: null,
+      universityId: null,
+      courseId: null,
+    },
+    isDefaultFilter: (f) => !hasActiveCatalogFilters(f),
+    fetcher: async (nextFilters, signal) => {
+      const res = await client.api["course-materials"].$get(
+        {
+          query: {
+            courseMaterialType: nextFilters.courseMaterialType || undefined,
+            universityId: nextFilters.universityId || undefined,
+            departmentId: nextFilters.departmentId || undefined,
+            courseId: nextFilters.courseId || undefined,
+          },
         },
-      })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Could not load course materials")
-        const data = await res.json()
-        if (!Array.isArray(data)) {
-          throw new Error("Could not load course materials")
-        }
-        return data
-      })
-      .then((next) => {
-        if (!cancelled) {
-          setCourseMaterials(next)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Could not load course materials. Please try again.")
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [filters])
+        { init: { signal } }
+      )
+      if (!res.ok)
+        throw new Error("Could not load course materials. Please try again.")
+      const data = await res.json()
+      if (!Array.isArray(data)) {
+        throw new Error("Could not load course materials. Please try again.")
+      }
+      return data
+    },
+  })
 
   const emptyState = catalogEmptyState(filters)
 
@@ -158,18 +116,12 @@ export function CourseMaterialCatalogClient({
             <p className="max-w-md text-sm text-muted-foreground">
               {emptyState.description}
             </p>
-            {hasActiveCatalogFilters(filters) ? (
+            {hasActiveFilters ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setFilters({
-                    courseMaterialType: null,
-                    universityId: null,
-                    courseId: null,
-                  })
-                }
+                onClick={resetFilters}
               >
                 Clear filters
               </Button>
@@ -199,7 +151,7 @@ export function CourseMaterialCatalogClient({
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                        <FileTypeIcon
+                        <CourseMaterialTypeIcon
                           courseMaterialType={
                             material.courseMaterialType ?? "other"
                           }
@@ -245,7 +197,13 @@ export function CourseMaterialCatalogClient({
                           material.courseMaterialType as CourseMaterialType
                         ] ?? material.courseMaterialType}
                       </Badge>
-                      <time dateTime={material.createdAt}>
+                      <time
+                        dateTime={
+                          typeof material.createdAt === "string"
+                            ? material.createdAt
+                            : material.createdAt.toISOString()
+                        }
+                      >
                         {formatRelativeUploadDate(material.createdAt)}
                       </time>
                     </div>

@@ -10,9 +10,7 @@ import {
   MessageSquareQuote,
   MessageCircle,
   MessageSquare,
-  File,
   FileText,
-  Presentation,
   SlidersHorizontal,
   RotateCcw,
   GraduationCap,
@@ -40,6 +38,7 @@ import { client } from "@gibiverse/api-client"
 import { formatRelativeUploadDate } from "@/lib/formatters"
 import { ACTIVE_TOGGLE_CLASSES } from "@/lib/toggle-styles"
 import { CourseFilterDropdown } from "@/components/course-filter-dropdown"
+import { CourseMaterialTypeIcon } from "@/components/course-material-type-icon"
 import { VoteControls } from "@/components/vote-controls"
 import {
   formatMaterialsCount,
@@ -87,28 +86,6 @@ interface SearchClientProps {
   universities?: University[]
   departments?: Department[]
   courses?: Course[]
-}
-
-function CourseMaterialTypeIcon({
-  courseMaterialType,
-  className,
-}: {
-  courseMaterialType: string
-  className?: string
-}) {
-  const cls = cn("size-8 text-muted-foreground/60", className)
-  switch (courseMaterialType) {
-    case "exam":
-    case "notes":
-    case "assignment":
-      return <FileText className={cls} />
-    case "slides":
-      return <Presentation className={cls} />
-    case "lab":
-      return <BookOpen className={cls} />
-    default:
-      return <File className={cls} />
-  }
 }
 
 export function SearchClient({
@@ -1182,7 +1159,13 @@ function CourseMaterialGrid({
                   <Badge variant="outline" className="text-xs">
                     {typeLabel}
                   </Badge>
-                  <time dateTime={item.createdAt}>
+                  <time
+                    dateTime={
+                      typeof item.createdAt === "string"
+                        ? item.createdAt
+                        : item.createdAt.toISOString()
+                    }
+                  >
                     {formatRelativeUploadDate(item.createdAt)}
                   </time>
                 </div>
@@ -1272,7 +1255,13 @@ function QuestionGrid({ questions }: { questions: SearchResultQuestion[] }) {
                 <span className="font-medium text-foreground/80">
                   {item.studentName}
                 </span>
-                <time dateTime={item.createdAt}>
+                <time
+                  dateTime={
+                    typeof item.createdAt === "string"
+                      ? item.createdAt
+                      : item.createdAt.toISOString()
+                  }
+                >
                   {formatRelativeUploadDate(item.createdAt)}
                 </time>
               </div>

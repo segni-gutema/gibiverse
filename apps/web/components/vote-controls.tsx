@@ -17,7 +17,6 @@ export interface VoteControlsProps {
   targetId: string
   initialScore: number
   initialStudentVote?: number | null
-  initialUserVote?: number | null
   orientation?: "vertical" | "horizontal"
   size?: "sm" | "default"
   className?: string
@@ -35,13 +34,12 @@ export function VoteControls({
   targetId,
   initialScore,
   initialStudentVote,
-  initialUserVote,
   orientation = "vertical",
   size = "default",
   className = "",
   onVoteChange,
 }: VoteControlsProps) {
-  const initialVote = initialStudentVote ?? initialUserVote ?? null
+  const initialVote = initialStudentVote ?? null
   const [score, setScore] = React.useState<number>(initialScore)
   const [activeVote, setActiveVote] = React.useState<CurrentVote>(
     normalizeVote(initialVote)
@@ -55,7 +53,7 @@ export function VoteControls({
     setScore(initialScore)
   }
 
-  const propVote = normalizeVote(initialStudentVote ?? initialUserVote)
+  const propVote = normalizeVote(initialStudentVote)
   const [prevPropVote, setPrevPropVote] = React.useState(propVote)
   if (propVote !== prevPropVote) {
     setPrevPropVote(propVote)

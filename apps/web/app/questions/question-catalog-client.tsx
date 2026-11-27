@@ -12,6 +12,7 @@ import {
 } from "@gibiverse/ui/components/toggle-group"
 import { CourseFilterDropdown } from "@/components/course-filter-dropdown"
 import { VoteControls } from "@/components/vote-controls"
+import { useFilteredCatalog } from "@/hooks/use-filtered-catalog"
 import { client } from "@gibiverse/api-client"
 import type { Course, University } from "@/app/courses/presentation"
 import { formatRelativeUploadDate } from "@/lib/formatters"
@@ -39,56 +40,38 @@ export function QuestionCatalogClient({
   courses: Course[]
   initialQuestions: CatalogQuestion[]
 }) {
-  const [filters, setFilters] = React.useState<QuestionCatalogFilters>({
-    courseId: null,
-    universityId: null,
-    sort: "newest",
-  })
-  const [questions, setQuestions] =
-    React.useState<CatalogQuestion[]>(initialQuestions)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-  const isFirstRender = React.useRef(true)
-
-  React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-
-    let cancelled = false
-    setIsLoading(true)
-    setError(null)
-
-    client.api.questions
-      .$get({
-        query: {
-          courseId: filters.courseId || undefined,
-          universityId: filters.universityId || undefined,
-          departmentId: filters.departmentId || undefined,
-          sort: filters.sort,
+  const {
+    data: questions,
+    isLoading,
+    error,
+    filters,
+    setFilters,
+    hasActiveFilters,
+  } = useFilteredCatalog<CatalogQuestion, QuestionCatalogFilters>({
+    initialData: initialQuestions,
+    initialFilters: {
+      courseId: null,
+      universityId: null,
+      sort: "newest",
+    },
+    isDefaultFilter: (f) => !hasActiveQuestionFilters(f),
+    fetcher: async (nextFilters, signal) => {
+      const res = await client.api.questions.$get(
+        {
+          query: {
+            courseId: nextFilters.courseId || undefined,
+            universityId: nextFilters.universityId || undefined,
+            departmentId: nextFilters.departmentId || undefined,
+            sort: nextFilters.sort,
+          },
         },
-      })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Could not load questions")
-        return res.json()
-      })
-      .then((next) => {
-        if (!cancelled) setQuestions(next)
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Could not load questions. Please try again.")
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [filters])
+        { init: { signal } }
+      )
+      if (!res.ok)
+        throw new Error("Could not load questions. Please try again.")
+      return res.json()
+    },
+  })
 
   const emptyState = questionCatalogEmptyState(filters)
 
@@ -172,7 +155,7 @@ export function QuestionCatalogClient({
             <p className="max-w-md text-sm text-muted-foreground">
               {emptyState.description}
             </p>
-            {hasActiveQuestionFilters(filters) ? (
+            {hasActiveFilters ? (
               <Button
                 type="button"
                 variant="outline"
@@ -288,7 +271,13 @@ function QuestionCard({
           <span className="font-medium text-foreground/80">
             {question.studentName}
           </span>
-          <time dateTime={question.createdAt}>
+          <time
+            dateTime={
+              typeof question.createdAt === "string"
+                ? question.createdAt
+                : question.createdAt.toISOString()
+            }
+          >
             {formatRelativeUploadDate(question.createdAt)}
           </time>
         </div>
