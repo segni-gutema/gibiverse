@@ -235,7 +235,7 @@ function QuestionCard({
           targetType="question"
           targetId={question.id}
           initialScore={question.voteScore}
-          initialUserVote={question.userVote}
+          initialStudentVote={question.studentVote}
           orientation="vertical"
           size="sm"
         />

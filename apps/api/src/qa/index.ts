@@ -128,7 +128,6 @@ export function createQa(deps: { db: Db }) {
             voteScore: question.voteScore,
             answerCount: question.answerCount,
             studentVote: vote.value,
-            userVote: vote.value,
           })
           .from(question)
           .innerJoin(course, eq(question.courseId, course.id))
@@ -156,7 +155,6 @@ export function createQa(deps: { db: Db }) {
             voteScore: question.voteScore,
             answerCount: question.answerCount,
             studentVote: sql<number | null>`null`.as("studentVote"),
-            userVote: sql<number | null>`null`.as("userVote"),
           })
           .from(question)
           .innerJoin(course, eq(question.courseId, course.id))
@@ -194,7 +192,6 @@ export function createQa(deps: { db: Db }) {
             answerCount: question.answerCount,
             acceptedAnswerId: question.acceptedAnswerId,
             studentVote: vote.value,
-            userVote: vote.value,
           })
           .from(question)
           .innerJoin(course, eq(question.courseId, course.id))
@@ -225,7 +222,6 @@ export function createQa(deps: { db: Db }) {
             answerCount: question.answerCount,
             acceptedAnswerId: question.acceptedAnswerId,
             studentVote: sql<number | null>`null`.as("studentVote"),
-            userVote: sql<number | null>`null`.as("userVote"),
           })
           .from(question)
           .innerJoin(course, eq(question.courseId, course.id))
@@ -250,7 +246,6 @@ export function createQa(deps: { db: Db }) {
             createdAt: answer.createdAt,
             updatedAt: answer.updatedAt,
             studentVote: vote.value,
-            userVote: vote.value,
           })
           .from(answer)
           .innerJoin(studentTable, eq(answer.userId, studentTable.id))
@@ -275,7 +270,6 @@ export function createQa(deps: { db: Db }) {
             createdAt: answer.createdAt,
             updatedAt: answer.updatedAt,
             studentVote: sql<number | null>`null`.as("studentVote"),
-            userVote: sql<number | null>`null`.as("userVote"),
           })
           .from(answer)
           .innerJoin(studentTable, eq(answer.userId, studentTable.id))

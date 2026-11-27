@@ -486,7 +486,7 @@ test("database enforces unique constraint on (userId, targetType, targetId)", as
   await db.delete(vote).where(eq(vote.id, id1))
 })
 
-test("GET /api/questions and /:id return userVote for authenticated student and null for guest", async () => {
+test("GET /api/questions and /:id return studentVote for authenticated student and null for guest", async () => {
   // Cast upvote on question and answer by student A
   await app.request("/api/votes", {
     method: "POST",
@@ -513,40 +513,40 @@ test("GET /api/questions and /:id return userVote for authenticated student and 
     }),
   })
 
-  // 1. Guest request to question detail -> userVote should be null
+  // 1. Guest request to question detail -> studentVote should be null
   const guestDetailRes = await app.request(`/api/questions/${testQuestionId}`)
   assert.strictEqual(guestDetailRes.status, 200)
   const guestDetail = (await guestDetailRes.json()) as {
-    userVote: number | null
-    answers: Array<{ userVote: number | null }>
+    studentVote: number | null
+    answers: Array<{ studentVote: number | null }>
   }
-  assert.strictEqual(guestDetail.userVote, null)
-  assert.strictEqual(guestDetail.answers[0]?.userVote, null)
+  assert.strictEqual(guestDetail.studentVote, null)
+  assert.strictEqual(guestDetail.answers[0]?.studentVote, null)
 
-  // 2. Student A request to question detail -> userVote should reflect active votes
+  // 2. Student A request to question detail -> studentVote should reflect active votes
   const authDetailRes = await app.request(`/api/questions/${testQuestionId}`, {
     headers: { cookie: studentACookie },
   })
   assert.strictEqual(authDetailRes.status, 200)
   const authDetail = (await authDetailRes.json()) as {
-    userVote: number | null
-    answers: Array<{ userVote: number | null }>
+    studentVote: number | null
+    answers: Array<{ studentVote: number | null }>
   }
-  assert.strictEqual(authDetail.userVote, 1)
-  assert.strictEqual(authDetail.answers[0]?.userVote, -1)
+  assert.strictEqual(authDetail.studentVote, 1)
+  assert.strictEqual(authDetail.answers[0]?.studentVote, -1)
 
-  // 3. Student A request to list questions -> userVote should be 1
+  // 3. Student A request to list questions -> studentVote should be 1
   const listRes = await app.request("/api/questions", {
     headers: { cookie: studentACookie },
   })
   assert.strictEqual(listRes.status, 200)
   const listData = (await listRes.json()) as Array<{
     id: string
-    userVote: number | null
+    studentVote: number | null
   }>
   const foundQ = listData.find((q) => q.id === testQuestionId)
   assert.ok(foundQ)
-  assert.strictEqual(foundQ.userVote, 1)
+  assert.strictEqual(foundQ.studentVote, 1)
 
   // Clean up votes
   await app.request("/api/votes", {

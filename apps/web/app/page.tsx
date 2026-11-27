@@ -17,10 +17,8 @@ import {
   getRecentQuestionsEmptyState,
   getRecentCourseMaterialsEmptyState,
 } from "./home-presentation"
-import {
-  formatAcademicPeriod,
-  formatRelativeUploadDate,
-} from "@/lib/formatters"
+import { formatAcademicPeriod } from "@gibiverse/shared/utils"
+import { formatRelativeUploadDate } from "@/lib/formatters"
 import {
   courseMaterialTypePillLabels,
   type CourseMaterialType,

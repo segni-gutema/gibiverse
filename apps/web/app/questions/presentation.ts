@@ -22,7 +22,6 @@ export type CatalogQuestion = {
   voteScore: number
   answerCount: number
   studentVote?: number | null
-  userVote?: number | null
 }
 
 export type QuestionCatalogEmptyState = {
@@ -76,7 +75,6 @@ export interface AnswerItem {
   voteScore: number
   isAccepted: boolean
   studentVote?: number | null
-  userVote?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -94,7 +92,6 @@ export interface QuestionDetail {
   answerCount: number
   acceptedAnswerId: string | null
   studentVote?: number | null
-  userVote?: number | null
   createdAt: string
   updatedAt: string
   answers: AnswerItem[]

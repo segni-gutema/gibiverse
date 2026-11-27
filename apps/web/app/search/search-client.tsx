@@ -1212,7 +1212,7 @@ function QuestionGrid({ questions }: { questions: SearchResultQuestion[] }) {
                 targetType="question"
                 targetId={item.id}
                 initialScore={item.voteScore}
-                initialUserVote={item.userVote}
+                initialStudentVote={item.studentVote}
                 orientation="vertical"
                 size="sm"
               />

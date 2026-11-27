@@ -140,7 +140,6 @@ test("list returns Questions for a Course and enriches student Vote", async () =
   const anonRow = anon.data.find((row) => row.id === asked.data.id)
   assert.ok(anonRow)
   assert.equal(anonRow.studentVote, null)
-  assert.equal(anonRow.userVote, null)
 
   const asRespondent = await qa.list({
     student: respondent,
@@ -151,7 +150,6 @@ test("list returns Questions for a Course and enriches student Vote", async () =
   const voted = asRespondent.data.find((row) => row.id === asked.data.id)
   assert.ok(voted)
   assert.equal(voted.studentVote, 1)
-  assert.equal(voted.userVote, 1)
 
   await db.delete(vote).where(eq(vote.id, `vote_qa_${suffix}`))
 })
