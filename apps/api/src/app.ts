@@ -1,12 +1,28 @@
 import { Hono } from "hono"
 import { auth } from "./lib/auth.js"
 import { requireAuth, optionalAuth } from "./middleware/auth.js"
-import { academic } from "./routes/academic.js"
-import { questions } from "./routes/questions.js"
-import { courseMaterials } from "./routes/course-materials.js"
-import { search } from "./routes/search.js"
-import { votes } from "./routes/votes.js"
-import { overview } from "./routes/overview.js"
+import db from "./db/index.js"
+import { createAcademic } from "./modules/academic/index.js"
+import { createCourseMaterials } from "./modules/course-materials/index.js"
+import { createQa } from "./modules/qa/index.js"
+import { createVoting } from "./modules/voting/index.js"
+import { createSearch } from "./modules/search/index.js"
+import { createOverview } from "./modules/overview/index.js"
+import { createStorage } from "./storage/index.js"
+import { createAcademicRoutes } from "./routes/academic.js"
+import { createQuestionRoutes } from "./routes/questions.js"
+import { createCourseMaterialRoutes } from "./routes/course-materials.js"
+import { createVoteRoutes } from "./routes/votes.js"
+import { createSearchRoutes } from "./routes/search.js"
+import { createOverviewRoutes } from "./routes/overview.js"
+
+// Compose domain modules
+const academic = createAcademic({ db })
+const courseMaterials = createCourseMaterials({ db, storage: createStorage() })
+const qa = createQa({ db })
+const voting = createVoting({ db })
+const search = createSearch({ db })
+const overview = createOverview({ db })
 
 export const app = new Hono()
 
@@ -17,12 +33,15 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 
 // Mount chained API routes for full RPC type inference
 export const routes = app
-  .route("/api", academic)
-  .route("/api/course-materials", courseMaterials)
-  .route("/api/questions", questions)
-  .route("/api/votes", votes)
-  .route("/api/search", search)
-  .route("/api/overview", overview)
+  .route("/api", createAcademicRoutes({ academic }))
+  .route(
+    "/api/course-materials",
+    createCourseMaterialRoutes({ courseMaterials })
+  )
+  .route("/api/questions", createQuestionRoutes({ qa }))
+  .route("/api/votes", createVoteRoutes({ voting }))
+  .route("/api/search", createSearchRoutes({ search }))
+  .route("/api/overview", createOverviewRoutes({ overview }))
 
 export type AppType = typeof routes
 
