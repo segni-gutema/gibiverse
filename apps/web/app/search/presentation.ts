@@ -2,6 +2,8 @@ import type {
   SearchType,
   SearchSort,
   CourseMaterialType,
+  CourseMaterialSummary,
+  QuestionSummary,
 } from "@gibiverse/shared/types"
 
 export type { SearchType, SearchSort }
@@ -9,36 +11,18 @@ export type SearchTab = SearchType
 
 export const ALL_TAB_PREVIEW_LIMIT = 6
 
-export type SearchResultCourseMaterial = {
-  id: string
-  title: string
-  courseMaterialType: string
-  academicPeriod: string
-  createdAt: string
-  courseId: string
-  courseCode: string
-  courseName: string
-  departmentId: string
-  universityId?: string
+export type SearchResultCourseMaterial = Omit<
+  CourseMaterialSummary,
+  "universityName" | "courseMaterialType"
+> & {
+  courseMaterialType: CourseMaterialType | string
   universityName?: string
   thumbnailPath?: string | null
 }
 
-export type SearchResultQuestion = {
-  id: string
-  title: string
-  body: string
-  createdAt: string
-  courseId: string
-  courseCode: string
-  courseName: string
+export type SearchResultQuestion = QuestionSummary & {
   universityId?: string
   universityName?: string
-  studentId: string
-  studentName: string
-  voteScore: number
-  answerCount: number
-  studentVote?: number | null
 }
 
 export type SearchResultCourse = {
