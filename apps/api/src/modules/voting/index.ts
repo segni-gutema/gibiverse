@@ -4,22 +4,21 @@ import {
   type VoteTargetType,
   type VoteValue,
   type CurrentVote,
-  voteTargetTypeSchema,
-  voteValueSchema,
 } from "@gibiverse/shared/types"
 import {
   calculateVoteTransition,
   type VoteTransition,
 } from "@gibiverse/shared/utils"
-import { question, answer } from "../db/schema/question.js"
-import { vote } from "../db/schema/vote.js"
+import { question, answer } from "../../db/schema/question.js"
+import { vote } from "../../db/schema/vote.js"
 import {
   ok,
   err,
   type Db,
+  type StudentIdentity,
   type Result,
   type DomainError,
-} from "../lib/result.js"
+} from "../../lib/result.js"
 
 export type { DomainError as VotingError }
 export type VotingResult<T> = Result<T>
@@ -27,21 +26,16 @@ export type VotingResult<T> = Result<T>
 export type { VoteTargetType, VoteValue, CurrentVote, VoteTransition }
 export { calculateVoteTransition }
 
-export type UserIdentity = {
-  id: string
-  name?: string
-}
-
 export type CastVoteInput = {
-  user: UserIdentity
-  targetType: unknown
-  targetId: unknown
-  value: unknown
+  student: StudentIdentity
+  targetType: VoteTargetType
+  targetId: string
+  value: VoteValue
 }
 
 export type VoteResult = {
   score: number
-  userVote: CurrentVote
+  studentVote: CurrentVote
   targetType: VoteTargetType
   targetId: string
 }
@@ -61,56 +55,30 @@ export function createVoting(deps: { db: Db }) {
   const { db } = deps
 
   async function cast(input: CastVoteInput): Promise<VotingResult<VoteResult>> {
-    const { user, targetType, targetId, value } = input
-
-    if (!user || !user.id) {
-      return err("validation", "User is required")
-    }
-
-    const parsedTargetType = voteTargetTypeSchema.safeParse(targetType)
-    if (!parsedTargetType.success) {
-      return err(
-        "validation",
-        "targetType must be either 'question' or 'answer'"
-      )
-    }
-
-    const trimmedTargetId = typeof targetId === "string" ? targetId.trim() : ""
-
-    if (!trimmedTargetId) {
-      return err("validation", "targetId is required")
-    }
-
-    const parsedValue = voteValueSchema.safeParse(value)
-    if (!parsedValue.success) {
-      return err("validation", "value must be 1 or -1")
-    }
-
-    const validTargetType = parsedTargetType.data
-    const validValue = parsedValue.data
-    const config = TARGET_CONFIG[validTargetType]
+    const { student, targetType, targetId, value } = input
+    const config = TARGET_CONFIG[targetType]
 
     return await db.transaction(async (tx) => {
       // 1. Lock target row to serialize concurrent votes and verify existence
       const [existingTarget] = await tx
         .select({ id: config.table.id })
         .from(config.table)
-        .where(eq(config.table.id, trimmedTargetId))
+        .where(eq(config.table.id, targetId))
         .for("update")
 
       if (!existingTarget) {
         return err("not_found", config.notFoundMessage)
       }
 
-      // 2. Query existing vote for this user & target (with row lock)
+      // 2. Query existing vote for this student & target (with row lock)
       const [existingVote] = await tx
         .select({ id: vote.id, value: vote.value })
         .from(vote)
         .where(
           and(
-            eq(vote.userId, user.id),
-            eq(vote.targetType, validTargetType),
-            eq(vote.targetId, trimmedTargetId)
+            eq(vote.userId, student.id),
+            eq(vote.targetType, targetType),
+            eq(vote.targetId, targetId)
           )
         )
         .for("update")
@@ -121,7 +89,7 @@ export function createVoting(deps: { db: Db }) {
 
       const { nextVote, scoreDelta } = calculateVoteTransition(
         currentVoteValue,
-        validValue
+        value
       )
 
       if (existingVote) {
@@ -139,9 +107,9 @@ export function createVoting(deps: { db: Db }) {
         // New vote
         await tx.insert(vote).values({
           id: randomUUID(),
-          userId: user.id,
-          targetType: validTargetType,
-          targetId: trimmedTargetId,
+          userId: student.id,
+          targetType,
+          targetId,
           value: nextVote!,
         })
       }
@@ -150,14 +118,14 @@ export function createVoting(deps: { db: Db }) {
       const [updated] = await tx
         .update(config.table)
         .set({ voteScore: sql`${config.table.voteScore} + ${scoreDelta}` })
-        .where(eq(config.table.id, trimmedTargetId))
+        .where(eq(config.table.id, targetId))
         .returning({ voteScore: config.table.voteScore })
 
       return ok({
         score: updated?.voteScore ?? 0,
-        userVote: nextVote,
-        targetType: validTargetType,
-        targetId: trimmedTargetId,
+        studentVote: nextVote,
+        targetType,
+        targetId,
       })
     })
   }

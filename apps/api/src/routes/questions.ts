@@ -9,7 +9,7 @@ import {
 import db from "../db/index.js"
 import { statusFor } from "../lib/result.js"
 import { requireAuth, optionalAuth } from "../middleware/auth.js"
-import { createQa } from "../qa/index.js"
+import { createQa } from "../modules/qa/index.js"
 
 const qa = createQa({ db })
 

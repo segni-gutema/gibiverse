@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto"
 import { and, desc, eq, type SQL } from "drizzle-orm"
-import { course } from "../db/schema/academic.js"
-import { user as studentTable } from "../db/schema/auth.js"
-import { courseMaterial } from "../db/schema/course-material.js"
+import { course } from "../../db/schema/academic.js"
+import { user as studentTable } from "../../db/schema/auth.js"
+import { courseMaterial } from "../../db/schema/course-material.js"
 import type { CourseMaterialType } from "@gibiverse/shared/types"
 import {
   ok,
@@ -10,8 +10,8 @@ import {
   type Db,
   type StudentIdentity,
   type Result,
-} from "../lib/result.js"
-import type { StorageProvider } from "../storage/types.js"
+} from "../../lib/result.js"
+import type { StorageProvider } from "../../storage/types.js"
 import {
   isCourseMaterialType,
   isAcademicPeriod,

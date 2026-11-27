@@ -6,7 +6,7 @@ import { university, department, course } from "../src/db/schema/academic.js"
 import { user as studentTable } from "../src/db/schema/auth.js"
 import { question } from "../src/db/schema/question.js"
 import { vote } from "../src/db/schema/vote.js"
-import { createQa } from "../src/qa/index.js"
+import { createQa } from "../src/modules/qa/index.js"
 
 const suffix = Date.now()
 const uniId = `uni_qa_${suffix}`
